@@ -11,3 +11,5 @@ plotly>=5.10.0
 matplotlib>=3.5.0
 seaborn>=0.11.0
 reportlab>=3.6.0
+
+# Apex ATS Suite Requirements
