@@ -1,183 +1,152 @@
 from typing import Dict, Any, List
-
-ROLE_RECOMMENDATIONS = {
-    "Data Scientist": {
-        "projects": [
-            "Customer Retention Predictor: Build an end-to-end classification system using XGBoost, deploy it as a REST API with FastAPI, and containerize it using Docker.",
-            "Visual Search Recommender: Build a deep learning image retrieval system using PyTorch and ResNet to recommend visually similar items from an e-commerce dataset."
-        ],
-        "certifications": [
-            "Microsoft Certified: Azure Data Scientist Associate",
-            "Google Professional Data Scientist Certificate"
-        ],
-        "roadmap": [
-            "Advanced Statistics & A/B Testing: Deepen knowledge in hypothesis testing, experimental design, and metrics selection.",
-            "Advanced Machine Learning: Study ensemble methods, gradient boosting parameter tuning, and feature store architectures (e.g., Feast).",
-            "Model Deployment & Monitoring: Learn FastAPI, Streamlit, and Prometheus/Grafana for model monitoring."
-        ]
-    },
-    "Data Analyst": {
-        "projects": [
-            "Interactive E-commerce Executive Dashboard: Build a multi-page Tableau or Power BI dashboard analyzing sales performance, customer acquisition, and seasonal trends.",
-            "Product Cohort Analysis: Use advanced SQL (window functions, CTEs) and Pandas to run retention and cohort analyses on user activity data."
-        ],
-        "certifications": [
-            "Google Advanced Data Analytics Professional Certificate",
-            "PL-300: Microsoft Power BI Data Analyst Certification"
-        ],
-        "roadmap": [
-            "Mastering SQL: Learn window functions, query optimization, indexing, and CTEs.",
-            "BI Tool Optimization: Deepen Dax queries in Power BI or LOD calculations in Tableau.",
-            "Business Communication: Focus on executive storytelling, slide design, and translating metrics into business actions."
-        ]
-    },
-    "Machine Learning Engineer": {
-        "projects": [
-            "LLM Fine-Tuning Pipeline: Fine-tune a Llama-3 model on a custom dataset using LoRA/QLoRA and deploy it with vLLM on cloud hardware.",
-            "Real-Time Object Detection API: Deploy an optimized YOLO model via an asynchronous FastAPI service utilizing Redis queues for image pre-processing."
-        ],
-        "certifications": [
-            "AWS Certified Machine Learning - Specialty",
-            "TensorFlow Developer Certificate (or DeepLearning.AI credentials)"
-        ],
-        "roadmap": [
-            "MLOps Practices: Implement automated CI/CD pipelines using GitHub Actions for model retraining and validation.",
-            "System Design & Scale: Learn distributed inference, Triton Inference Server, and ONNX model optimization.",
-            "Deep Learning Foundations: Gain hands-on practice building custom architectures (Attention Mechanisms, CNNs, Transformers) in PyTorch."
-        ]
-    },
-    "Data Engineer": {
-        "projects": [
-            "Real-Time Clickstream ETL Pipeline: Use Apache Kafka to ingest clickstream events, process them with PySpark Structured Streaming, and write results to Snowflake.",
-            "Serverless Data Lake Ingestion: Build an AWS-native pipeline using Lambda, EventBridge, Glue, and Athena to crawl and query unstructured data in S3."
-        ],
-        "certifications": [
-            "Snowflake SnowPro Core Certification",
-            "Google Cloud Professional Data Engineer"
-        ],
-        "roadmap": [
-            "Distributed Computing: Master Apache Spark, PySpark optimization, partitioning, and memory management.",
-            "Data Pipeline Orchestration: Build complex DAGs in Apache Airflow, Prefect, or Dagster.",
-            "Data Modeling & Warehousing: Understand Kimball methodologies, Star/Snowflake schemas, and slowly changing dimensions (SCD)."
-        ]
-    },
-    "Business Analyst": {
-        "projects": [
-            "Software Migration Requirements Document: Write a comprehensive Agile Product Backlog with detailed User Stories, Acceptance Criteria, and UML activity diagrams.",
-            "Operational Cost-Benefit Model: Build an interactive financial model in Excel/Python analyzing ROI and payback periods for a proposed cloud migration."
-        ],
-        "certifications": [
-            "IIBA Certified Business Analysis Professional (CBAP)",
-            "PMI Professional in Business Analysis (PMI-PBA)"
-        ],
-        "roadmap": [
-            "Agile Frameworks: Gain deep knowledge of Scrum, Kanban, and product roadmap development using Jira/Confluence.",
-            "Data Literacy: Learn standard SQL query structures and simple data visualization strategies in Power BI.",
-            "Business Process Modeling: Study BPMN standards, mapping business state diagrams, and gap analysis methodologies."
-        ]
-    },
-    "Software Engineer": {
-        "projects": [
-            "Microservices E-commerce Platform: Build a backend system using Spring Boot / Node.js, implementing service discovery, API gateway, and Postgres databases.",
-            "Real-Time Collaborative Dashboard: Create a responsive React/TypeScript frontend that connects to a WebSockets server for live multiplayer interactions."
-        ],
-        "certifications": [
-            "AWS Certified Solutions Architect - Associate",
-            "Oracle Certified Professional: Java SE Developer"
-        ],
-        "roadmap": [
-            "System Design: Study scalability, caching mechanisms (Redis), load balancing, and partitioning.",
-            "Code Quality & Testing: Master unit testing, integration tests, mock frameworks, and Clean Code principles.",
-            "Cloud Deployment: Learn Docker, container scheduling, and serverless architectures."
-        ]
-    }
-}
+from utils.constants import ROLE_RECOMMENDATIONS, SOFT_SKILLS_LIST
 
 class AIFeedbackSystem:
     """
-    Generates tailored feedback, suggestions, and roadmaps based on resume parse analysis
-    and ML classifier role prediction.
+    Generates structured, premium feedback and career roadmaps based on resume analysis,
+    job matching details, and predicted role category.
     """
     
     @staticmethod
     def generate_feedback(ats_data: Dict[str, Any], match_data: Dict[str, Any], predicted_role: str) -> Dict[str, Any]:
         """
-        Synthesizes overall strengths, weaknesses, project suggestions, and learning roadmap.
+        Synthesizes strengths, weaknesses, formatting/ATS fixes, certifications, roadmap,
+        priority actions, and interview prep questions.
         """
         strengths = []
         weaknesses = []
+        immediate_improvements = []
+        ats_improvements = []
+        formatting_improvements = []
+        grammar_improvements = []
         
-        # 1. Evaluate Strengths
-        # Check contact completeness
-        filled_contacts = [k for k, v in ats_data['contact_status'].items() if v]
-        if 'email' in filled_contacts and 'phone' in filled_contacts:
-            strengths.append("Strong contact structure: Both email and phone number are clearly visible and parseable.")
-        if 'linkedin' in filled_contacts:
-            strengths.append("Professional profile linkage: Valid LinkedIn account is provided for recruiter reference.")
-        if 'github' in filled_contacts:
-            strengths.append("Technical portfolio linkage: GitHub link is present, highlighting active open-source contributions.")
+        # 1. Strengths Check
+        contact_status = ats_data.get('contact_status', {})
+        if contact_status.get('email') and contact_status.get('phone'):
+            strengths.append("Verified Contacts: Email and phone number are present and parseable.")
+        if contact_status.get('linkedin'):
+            strengths.append("LinkedIn Profile Integrated: Allows recruiters to review professional socials.")
+        if contact_status.get('github'):
+            strengths.append("GitHub Portfolio Present: Showcases open-source projects and code samples.")
             
-        # Check sections
-        filled_sections = [k for k, v in ats_data['section_status'].items() if v]
-        if len(filled_sections) >= 3:
-            strengths.append(f"Well-structured resume: Found key logical sections including {', '.join([s.title() for s in filled_sections])}.")
+        word_cnt = ats_data.get('word_count', 0)
+        if 150 <= word_cnt <= 800:
+            strengths.append(f"Ideal Word Count: Your resume is {word_cnt} words, falling in the optimal range.")
+        else:
+            if word_cnt < 150:
+                weaknesses.append("Content too short: Your resume has fewer than 150 words. Add more context to projects and jobs.")
+                immediate_improvements.append("Expand job and project descriptions to reach at least 400 words.")
+            else:
+                weaknesses.append("Resume too verbose: Word count exceeds 800 words. Keep it focused on high impact details.")
+                formatting_improvements.append("Condense experience summaries to fit a clean 1-2 page layout.")
+                
+        # Check bullets and metrics
+        if ats_data.get('bullets_detected', False):
+            strengths.append("Structured Layout: Bullet lists detected, enhancing parsing readability.")
+        else:
+            weaknesses.append("Wall of Text: No standard lists/bullet points detected.")
+            ats_improvements.append("Replace paragraph blocks in Experience sections with clean bullet points.")
             
-        # Check metrics & formatting
-        if ats_data['metrics_detected']:
-            strengths.append("Impact-driven description: Quantified project metrics and business impact found in text.")
-        if ats_data['bullets_detected']:
-            strengths.append("Recruiter-friendly layout: Utilizes structured list formatting and bullet points for high readability.")
+        if ats_data.get('metrics_detected', False):
+            strengths.append("Quantified Achievements: Includes numeric impact metrics (%, $, rates).")
+        else:
+            weaknesses.append("Vague Descriptions: Lacks quantified results and business impact.")
+            immediate_improvements.append("Revise project bullets using the XYZ formula: 'Accomplished [X] as measured by [Y], by doing [Z]'.")
             
-        # Check skill diversity
-        if ats_data['skills_score'] >= 20:
-            strengths.append("Rich technical vocabulary: Extracted a diverse range of technical skills across multiple domains.")
-            
-        # 2. Evaluate Weaknesses
-        missing_contacts = [k for k, v in ats_data['contact_status'].items() if not v]
-        if 'linkedin' in missing_contacts:
-            weaknesses.append("Missing professional socials: Consider adding a LinkedIn profile to build professional trust.")
-        if 'github' in missing_contacts and predicted_role in ['Software Engineer', 'Machine Learning Engineer', 'Data Engineer']:
-            weaknesses.append(f"Portfolio gap: As a potential {predicted_role}, adding a GitHub profile is highly recommended to showcase code.")
-            
-        missing_sections = [k for k, v in ats_data['section_status'].items() if not v]
-        for sec in missing_sections:
-            weaknesses.append(f"Missing section '{sec.title()}': Including dedicated space for {sec} provides complete background details.")
-            
-        if not ats_data['metrics_detected']:
-            weaknesses.append("Lack of metrics/quantified results: Recruiters prefer seeing data impact. Add numbers (%, $, count) showing the result of your work.")
-            
-        if ats_data['word_count'] < 150:
-            weaknesses.append("Resume content is too sparse: Provide more detailed descriptions of your tasks and projects to increase ATS keyword matching.")
-        elif ats_data['word_count'] > 1000:
-            weaknesses.append("Resume is overly verbose: Try to condense the information. Maintain a tight 1-to-2 page length for maximum focus.")
+        # 2. Section Checks
+        section_status = ats_data.get('section_status', {})
+        missing_sections = [sec.replace('_', ' ').title() for sec, ok in section_status.items() if not ok]
+        if missing_sections:
+            weaknesses.append(f"Missing Core Sections: {', '.join(missing_sections)} sections were not found.")
+            ats_improvements.append(f"Add dedicated section headers for: {', '.join(missing_sections)}.")
+        else:
+            strengths.append("Structural Completeness: All standard resume sections are correctly mapped.")
             
         # 3. Job Match specific feedback
         missing_skills = match_data.get('missing_skills', [])
         if missing_skills:
-            weaknesses.append(f"Skill gap for Job Description: Missing {len(missing_skills)} key skills listed in the target job requirements.")
+            weaknesses.append(f"Skill Gap: Missing {len(missing_skills)} critical keywords listed in the job requirements.")
+            immediate_improvements.append(f"Integrate key missing technologies like: {', '.join(missing_skills[:4])} naturally into your skills section.")
+        else:
+            strengths.append("High Skills Alignment: Exceptional coverage of keywords specified in the Job Description.")
             
-        # Ensure we have at least some default strengths/weaknesses
-        if not strengths:
-            strengths.append("Basic resume layout is established. Keep refining headers to highlight skills.")
-        if not weaknesses:
-            weaknesses.append("No critical defects found. Focus on tailoring resume bullet points to your dream jobs.")
-
-        # 4. Extract Project & Certification recommendations
-        recs = ROLE_RECOMMENDATIONS.get(predicted_role, ROLE_RECOMMENDATIONS['Software Engineer'])
+        # 4. Formatting and Grammar heuristic feedback
+        if not contact_status.get('linkedin') or not contact_status.get('github'):
+            formatting_improvements.append("Include links to LinkedIn and GitHub in the header for easier access.")
+            
+        # Grammar suggestions
+        grammar_improvements.append("Use strong action verbs in the past tense for previous projects (e.g. 'Initiated', 'Refactored').")
+        grammar_improvements.append("Ensure capitalization of abbreviations and tech stacks (e.g., use 'SQL' instead of 'sql', 'GitHub' instead of 'github').")
         
-        # 5. Formulate learning roadmap
-        roadmap = []
+        # 5. Extract role suggestions (centralized constants)
+        role_recs = ROLE_RECOMMENDATIONS.get(predicted_role, ROLE_RECOMMENDATIONS['Software Engineer'])
+        projects = role_recs['projects']
+        certifications = role_recs['certifications']
+        roadmap_steps = role_recs['roadmap']
+        resources = role_recs.get('resources', ["LeetCode / HackerRank", "W3Schools tutorials"])
+        
+        # 6. Specific Priority Improvements list
+        priority_improvements = []
         if missing_skills:
-            # If we have missing skills, start the roadmap by tackling those first
-            roadmap.append(f"Bridge Job Description gaps: Learn the missing technologies: {', '.join(missing_skills[:5])}.")
+            priority_improvements.append({
+                'priority': 'High',
+                'category': 'Keywords Gap',
+                'text': f"Add missing keywords: {', '.join(missing_skills[:4])}."
+            })
+        if not ats_data.get('metrics_detected', False):
+            priority_improvements.append({
+                'priority': 'High',
+                'category': 'Impact Metrics',
+                'text': "Add numerical figures (e.g. 'reduced latency by 30%') to your experience bullets."
+            })
+        if missing_sections:
+            priority_improvements.append({
+                'priority': 'Medium',
+                'category': 'Structure',
+                'text': f"Add headers for: {', '.join(missing_sections)}."
+            })
+        if not contact_status.get('github') and predicted_role in ['Software Engineer', 'Machine Learning Engineer', 'Data Engineer']:
+            priority_improvements.append({
+                'priority': 'Medium',
+                'category': 'Portfolio',
+                'text': "Create a GitHub account and paste the link in your contact info."
+            })
+        priority_improvements.append({
+            'priority': 'Low',
+            'category': 'Aesthetic',
+            'text': "Use standard fonts (Arial, Calibri) and ensure margin symmetry."
+        })
         
-        # Append general roadmap for the predicted role
-        roadmap.extend(recs['roadmap'])
+        # 7. High Impact vs Low Effort categorization
+        high_impact = [
+            "Quantify project achievements with percentages or dollar values.",
+            f"Integrate key tech stacks required in JD: {', '.join(missing_skills[:3]) if missing_skills else 'relevance keywords'}."
+        ]
+        low_effort = [
+            "Add contact links (LinkedIn / GitHub / Portfolio).",
+            "Change section names to standard titles like 'Experience' and 'Education'."
+        ]
+        
+        # 8. Custom Interview Prep Questions
+        interview_prep = [
+            f"Walk me through a complex project on your resume that aligns with the skills of a {predicted_role}.",
+            "How do you handle disagreement with stakeholders or team members during product specification?",
+            f"What is your approach to learning and adopting new framework technologies (e.g. {missing_skills[0] if missing_skills else 'new tools'})?"
+        ]
         
         return {
             "strengths": strengths,
             "weaknesses": weaknesses,
-            "project_suggestions": recs['projects'],
-            "certification_suggestions": recs['certifications'],
-            "learning_roadmap": roadmap
+            "immediate_improvements": immediate_improvements,
+            "ats_improvements": ats_improvements,
+            "formatting_improvements": formatting_improvements,
+            "grammar_improvements": grammar_improvements,
+            "project_suggestions": projects,
+            "certification_suggestions": certifications,
+            "learning_roadmap": roadmap_steps,
+            "learning_resources": resources,
+            "priority_improvements": priority_improvements,
+            "high_impact_suggestions": high_impact,
+            "low_effort_improvements": low_effort,
+            "interview_preparation": interview_prep
         }
