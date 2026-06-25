@@ -1,14 +1,16 @@
 import os
 import io
+import logging
+from typing import Union, BinaryIO
+
 import pdfplumber
 import PyPDF2
 from docx import Document
-import logging
-from typing import Union, BinaryIO
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class ResumeExtractor:
     """
@@ -45,8 +47,8 @@ class ResumeExtractor:
                 if hasattr(file_source, 'seek'):
                     try:
                         file_source.seek(0)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Unable to reset file stream pointer: {e}")
             else:
                 raise ValueError("Invalid file source type. Must be a path string or file stream.")
 
