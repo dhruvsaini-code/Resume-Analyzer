@@ -451,3 +451,64 @@ class ResumeCharts:
             coloraxis_showscale=False
         )
         return fig
+
+    @staticmethod
+    def create_sankey_diagram(timeline_list: List[Dict[str, Any]], predicted_role: str) -> go.Figure:
+        """
+        Creates a Sankey diagram representing Career Experience Progression flow to the Predicted Target Role.
+        """
+        if not timeline_list:
+            return go.Figure()
+            
+        nodes = []
+        sources = []
+        targets = []
+        values = []
+        
+        # Target role index will be added
+        target_role_node = f"Target: {predicted_role}"
+        
+        # Populate nodes
+        for idx, item in enumerate(timeline_list):
+            company_node = f"{item.get('role')} @ {item.get('company')}"
+            nodes.append(company_node)
+            sources.append(idx)
+            # All flow into target role node
+            targets.append(len(timeline_list)) # target node index is len(timeline_list)
+            values.append(max(1.0, item.get('duration_years', 1.0)))
+            
+        nodes.append(target_role_node)
+        
+        # Add a flow from target role node to "Hiring Pipeline" node
+        success_node = "Hiring Pipeline"
+        nodes.append(success_node)
+        sources.append(len(timeline_list))
+        targets.append(len(timeline_list) + 1)
+        values.append(sum(values)) # Total duration equivalent value
+        
+        fig = go.Figure(data=[go.Sankey(
+            node = dict(
+              pad = 15,
+              thickness = 20,
+              line = dict(color = "black", width = 0.5),
+              label = nodes,
+              color = "rgba(99, 102, 241, 0.8)"
+            ),
+            link = dict(
+              source = sources,
+              target = targets,
+              value = values,
+              color = "rgba(129, 140, 248, 0.4)"
+          ))])
+          
+        fig.update_layout(
+            title_text="Experience Progression Flow to Target Career Role",
+            font_size=10,
+            height=260,
+            margin=dict(l=20, r=20, t=40, b=20),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font={'color': '#F3F4F6'}
+        )
+        return fig
+
