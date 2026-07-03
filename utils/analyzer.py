@@ -50,7 +50,8 @@ class ATSAnalyzer:
             'contact_status': contact_status,
             'metrics_detected': has_metrics,
             'bullets_detected': has_bullets,
-            'word_count': res['word_count']
+            'word_count': res['word_count'],
+            'detailed_scores': res.get('detailed_scores', {})
         }
 
 
