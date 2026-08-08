@@ -62,6 +62,46 @@ class ResumeCharts:
         return fig
 
     @staticmethod
+    def create_readability_gauge(score: float, word_variety: float) -> go.Figure:
+        """
+        Creates a dual indicator gauge for Flesch Readability and Word Variety Ratio.
+        """
+        fig = go.Figure()
+        fig.add_trace(go.Indicator(
+            mode = "gauge+number",
+            value = score,
+            title = {'text': "Readability Index", 'font': {'size': 14, 'color': '#38BDF8'}},
+            domain = {'x': [0, 0.48], 'y': [0, 1]},
+            gauge = {
+                'axis': {'range': [0, 100], 'tickcolor': '#9CA3AF'},
+                'bar': {'color': '#38BDF8'},
+                'bgcolor': 'rgba(0,0,0,0)',
+                'bordercolor': '#0284C7',
+            }
+        ))
+        fig.add_trace(go.Indicator(
+            mode = "gauge+number",
+            value = word_variety,
+            number = {'suffix': "%"},
+            title = {'text': "Word Variety Ratio", 'font': {'size': 14, 'color': '#A855F7'}},
+            domain = {'x': [0.52, 1], 'y': [0, 1]},
+            gauge = {
+                'axis': {'range': [0, 100], 'tickcolor': '#9CA3AF'},
+                'bar': {'color': '#A855F7'},
+                'bgcolor': 'rgba(0,0,0,0)',
+                'bordercolor': '#7E22CE',
+            }
+        ))
+        fig.update_layout(
+            height=190,
+            margin=dict(l=20, r=20, t=30, b=10),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font={'color': '#F3F4F6'}
+        )
+        return fig
+
+    @staticmethod
     def create_radar_chart(scores_dict: Dict[str, float]) -> go.Figure:
         """
         Creates a Radar chart showing the breakdown of composite scores.
