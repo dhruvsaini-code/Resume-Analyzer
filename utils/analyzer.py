@@ -40,12 +40,29 @@ class ATSAnalyzer:
         has_bullets = bool(re.search(r'[-*•►▪|]', text))
         has_metrics = bool(re.search(r'\b\d+(?:\.\d+)?%|\$\d+|\b(?:million|billion|increased|decreased|reduced|saved|improved)\b', text.lower()))
         
+        # Readability & sentence metrics calculation
+        sentences = [s.strip() for s in re.split(r'[.!?]+', text) if len(s.strip()) > 3]
+        words = re.findall(r'\b\w+\b', text.lower())
+        num_sentences = max(1, len(sentences))
+        num_words = max(1, len(words))
+        avg_sentence_length = num_words / num_sentences
+        unique_words = len(set(words))
+        word_variety_ratio = round((unique_words / num_words) * 100, 1) if num_words > 0 else 0.0
+        
+        # Approximate Flesch Reading Ease score (standard 206.835 - 1.015*(words/sentences) - 84.6*(syllables/words))
+        avg_syllables_per_word = 1.6 # empirical average for standard professional English text
+        flesch_score = max(0.0, min(100.0, 206.835 - (1.015 * avg_sentence_length) - (84.6 * avg_syllables_per_word)))
+        readability_score = round(flesch_score, 1)
+        
         return {
             'overall_score': res['scores']['ATS Compatibility'],
             'skills_score': res['scores']['Technical Score'] * 0.3, # Scaled down to max 30
             'sections_score': res['scores']['Resume Completeness'] * 0.3, # Scaled down to max 30
             'contact_score': res['scores']['Formatting Score'] * 0.2, # Scaled down to max 20
             'formatting_score': res['scores']['Section Quality'] * 0.2, # Scaled down to max 20
+            'readability_score': readability_score,
+            'word_variety_ratio': word_variety_ratio,
+            'avg_sentence_length': round(avg_sentence_length, 1),
             'section_status': section_status,
             'contact_status': contact_status,
             'metrics_detected': has_metrics,
@@ -226,6 +243,14 @@ class JobMatchAnalyzer:
         
         overall_match = round(weighted_score, 1)
         
+        # Dynamic Salary Estimate calculation based on seniority, years exp, and tech match
+        base_low = 75000 + (resume_years * 10000)
+        if resume_sen == 'senior': base_low += 25000
+        elif resume_sen == 'exec': base_low += 50000
+        
+        base_high = base_low + 40000 + int(tech_stack_score * 200)
+        salary_estimate = f"${int(base_low):,} - ${int(base_high):,} USD"
+        
         # Categorize missing skills by domain
         missing_by_category = {}
         for category, jd_skills_in_cat in jd_skills_cat.items():
@@ -235,6 +260,12 @@ class JobMatchAnalyzer:
                     missing_in_cat.append(s)
             if missing_in_cat:
                 missing_by_category[category] = missing_in_cat
+
+        # Priority missing skills ranking (top 5 missing skills present in core categories)
+        priority_missing = []
+        for cat, skills_list in missing_by_category.items():
+            for s in skills_list:
+                priority_missing.append({'skill': s.title(), 'category': cat.title(), 'impact': 'High' if cat in ['programming', 'cloud_devops'] else 'Medium'})
                 
         return {
             'match_score': overall_match,
@@ -245,6 +276,8 @@ class JobMatchAnalyzer:
             'strong_keywords': strong_skills,
             'weak_keywords': weak_skills,
             'missing_by_category': missing_by_category,
+            'priority_missing_skills': priority_missing[:6],
+            'salary_estimate': salary_estimate,
             'total_jd_skills': len(jd_skills_flat),
             'total_matching_skills': len(matching_skills),
             
