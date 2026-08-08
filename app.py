@@ -565,6 +565,28 @@ elif st.session_state.nav_selection == "Candidate Analyzer":
                     use_container_width=True
                 )
                 
+                # Export JSON and CSV summary
+                import json
+                export_json_data = json.dumps({
+                    "candidate_name": contact_info['name'],
+                    "contact_info": contact_info,
+                    "predicted_role": pred_role,
+                    "overall_ats_score": ats_results.get('overall_score'),
+                    "match_score": match_results.get('match_score'),
+                    "readability_score": ats_results.get('readability_score', 75.0),
+                    "matching_skills": match_results.get('matching_skills', []),
+                    "missing_skills": match_results.get('missing_skills', []),
+                    "salary_estimate": match_results.get('salary_estimate', 'N/A')
+                }, indent=2)
+                
+                st.download_button(
+                    label="📄 Export Analysis JSON Data",
+                    data=export_json_data,
+                    file_name=f"analysis_{contact_info['name'] or 'candidate'}.json",
+                    mime="application/json",
+                    use_container_width=True
+                )
+                
             # Profile summary card
             st.subheader("Executive Profile Summary")
             kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
@@ -744,6 +766,14 @@ elif st.session_state.nav_selection == "Candidate Analyzer":
                     
             with tab_charts_tab:
                 st.markdown("### Interactive Visualizations Tab")
+                
+                st.markdown("#### 📖 Readability & Text Quality Gauge")
+                readability_val = ats_results.get('readability_score', 75.0)
+                variety_val = ats_results.get('word_variety_ratio', 65.0)
+                fig_read = ResumeCharts.create_readability_gauge(readability_val, variety_val)
+                st.plotly_chart(fig_read, use_container_width=True)
+                
+                st.divider()
                 chart_col1, chart_col2 = st.columns(2)
                 with chart_col1:
                     st.markdown("#### Career Timeline")
