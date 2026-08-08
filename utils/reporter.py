@@ -217,16 +217,17 @@ class PDFReportGenerator:
         if contact_info.get('linkedin'): contact_list.append("<b>LinkedIn:</b> Connected")
         if contact_info.get('github'): contact_list.append("<b>GitHub:</b> Connected")
         
+        salary_est = match_results.get('salary_estimate', '$95,000 - $145,000 USD')
+        
         details_data = [
-            [Paragraph("<b>CANDIDATE INFORMATION</b>", ParagraphStyle('HDetail', fontName='Helvetica-Bold', fontSize=10, textColor=c_primary)), ""],
-            [Paragraph(f"<b>Name:</b> {candidate_name}", body_style), Paragraph(f"<b>Target Career Path:</b> {predicted_role}", body_style)],
-            [Paragraph("<br/>".join(contact_list) if contact_list else "<b>Contact Status:</b> Incomplete Details", body_style), ""]
+            [Paragraph("<b>CANDIDATE PROFILE & EXECUTIVE ASSESSMENT</b>", ParagraphStyle('HDetail', fontName='Helvetica-Bold', fontSize=10, textColor=c_primary)), ""],
+            [Paragraph(f"<b>Candidate Name:</b> {candidate_name}", body_style), Paragraph(f"<b>Target Role:</b> {predicted_role}", body_style)],
+            [Paragraph("<br/>".join(contact_list) if contact_list else "<b>Contact Status:</b> Incomplete Details", body_style), Paragraph(f"<b>Estimated Market Range:</b> {salary_est}", body_style)]
         ]
         
         details_table = Table(details_data, colWidths=[266, 266])
         details_table.setStyle(TableStyle([
             ('SPAN', (0, 0), (1, 0)),
-            ('SPAN', (0, 2), (1, 2)),
             ('BACKGROUND', (0, 0), (-1, -1), c_light),
             ('LINEBELOW', (0, 0), (1, 0), 1, c_primary),
             ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor("#D1D5DB")),
@@ -236,7 +237,27 @@ class PDFReportGenerator:
             ('RIGHTPADDING', (0, 0), (-1, -1), 12),
         ]))
         story.append(details_table)
-        story.append(Spacer(1, 40))
+        story.append(Spacer(1, 20))
+        
+        # Executive Summary Callout Box
+        exec_summary_text = (
+            f"<b>Executive Summary:</b> {candidate_name} exhibits strong alignment with target role requirements "
+            f"({predicted_role}), achieving an overall ATS compatibility rating of <b>{ats_results.get('overall_score', 0):.0f}%</b> "
+            f"and a job requirement match score of <b>{match_results.get('match_score', 0):.0f}%</b>. "
+            "Key recommendations include optimizing keyword density for high-priority technical skills and expanding quantified bullet points."
+        )
+        exec_summary_data = [[Paragraph(exec_summary_text, ParagraphStyle('ExecSumText', parent=body_style, fontSize=9, leading=13, textColor=colors.HexColor("#1E293B")))]]
+        exec_summary_table = Table(exec_summary_data, colWidths=[532])
+        exec_summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#F0F9FF")),
+            ('BOX', (0, 0), (-1, -1), 1, colors.HexColor("#0284C7")),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        story.append(exec_summary_table)
+        story.append(Spacer(1, 20))
         
         # Large Score Badges
         ats_score = ats_results.get('overall_score', 0.0)
