@@ -68,31 +68,33 @@ graph TD
 
 ## 🌟 Key Features
 
-* **Advanced Layout Extraction**: Headless text parsing for PDFs (falling back from `pdfplumber` to `PyPDF2`) and DOCX files.
+* **Executive PDF & JSON Exporter**: Renders styled multi-page candidate evaluation documents complete with running headers/footers, executive summary callout cards, estimated market salary bands, and JSON dataset exports.
+* **Flesch Readability & Word Variety Engine**: Evaluates sentence complexity, average sentence length, and vocabulary richness using Flesch Reading Ease indices and interactive Plotly dual gauge meters.
+* **Dynamic Market Salary Estimation**: Computes candidate salary range expectations ($75k–$250k+) based on parsed experience timeline, target role seniority, and tech stack alignment.
+* **Priority Skill Gap Ranking**: Automatically ranks missing job description keywords into High and Medium impact categories.
 * **14+ Section Parser**: Segments files into Education, Experience, Internships, Achievements, Certifications, Publications, and more.
-* **20 Score Analytics Index**: Evaluates Grammar checks, Flesch Reading Ease, Active Action Verbs, Formatting, and Completeness.
+* **20 Score Analytics Index**: Evaluates Grammar checks, Active Action Verbs, Formatting, and Structural Completeness.
 * **Multi-Dimensional JD Alignment**: Checks seniority thresholds, degree level hierarchies, required experience years, and tech stack overlaps.
 * **Intelligent AI Action Plans**: Recommends hands-on projects, industry certifications, mock interview prep, and a 1-year career transition road.
 * **ML Local Prediction Explainer**: Extracts Logistic Regression weights to show which words in the resume most influenced the predicted career class.
 * **Recruiter Screening Console**: Uploads and dynamically ranks multiple resumes side-by-side.
-* **ReportLab PDF Exporter**: Renders styled multi-page candidate evaluation documents complete with running headers/footers and embedded matplotlib graphs.
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-├── app.py                     # Main Streamlit SaaS application dashboard
+├── app.py                     # Main Streamlit SaaS application dashboard (Glassmorphic Theme & Exports)
 ├── utils/
 │   ├── __init__.py
 │   ├── extractor.py           # Text parser for PDF & DOCX formats
 │   ├── parser.py              # 14+ section segmenter & timeline extractor
 │   ├── analytics.py           # 20 scoring metrics engine
-│   ├── charts.py              # 13 Plotly visualizations suite
-│   ├── analyzer.py            # Seniority, experience, & tech stack match analyzer
+│   ├── charts.py              # Plotly visualizations suite (Gauges, Radar, Timeline, Sankey, Sunburst)
+│   ├── analyzer.py            # Readability indices, salary estimator & JD match analyzer
 │   ├── classifier.py          # ML Logistic Regression wrapper & TF-IDF explainer
 │   ├── feedback.py            # Personalized career roadmaps & suggestions
-│   ├── reporter.py            # ReportLab multi-page PDF generator
+│   ├── reporter.py            # ReportLab multi-page PDF generator with Executive Callouts
 │   └── constants.py           # Centralized skills, headers, & recommendations
 ├── models/
 │   ├── classifier.pkl         # Pickled multi-class classifier model
@@ -102,7 +104,7 @@ graph TD
 ├── notebooks/
 │   └── train_model.py         # TF-IDF model training & dataset generation pipeline
 ├── reports/                   # Destination folder for PDF report downloads
-├── test_pipeline.py           # End-to-end integration tests script
+├── test_pipeline.py           # 9-step end-to-end integration test suite
 ├── requirements.txt           # Python dependency mapping
 └── README.md                  # Professional documentation
 ```

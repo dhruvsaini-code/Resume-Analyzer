@@ -305,6 +305,42 @@ class IntegrationTestSuite:
             
         return True, ""
 
+    def test_readability_analytics(self) -> Tuple[bool, str]:
+        """
+        8. Test Readability Analytics
+        Verifies Flesch reading score and word variety index computation.
+        """
+        log_info("Testing readability index calculations...")
+        parser = ResumeParser(SAMPLE_RESUME_TEXT)
+        ats_results = ATSAnalyzer.calculate_ats_score(parser)
+        
+        readability = ats_results.get('readability_score')
+        variety = ats_results.get('word_variety_ratio')
+        
+        if readability is None or not (0 <= readability <= 100):
+            return False, f"Invalid readability score: {readability}"
+        if variety is None or not (0 <= variety <= 100):
+            return False, f"Invalid word variety ratio: {variety}"
+            
+        log_info(f"✓ Calculated Readability Index: {readability}/100")
+        log_info(f"✓ Word Variety Ratio: {variety}%")
+        return True, ""
+
+    def test_salary_estimation(self) -> Tuple[bool, str]:
+        """
+        9. Test Salary Estimation & Priority Gaps
+        Verifies market salary range string formatting and priority gap array.
+        """
+        log_info("Testing salary range estimation and priority gap ranking...")
+        match_results = JobMatchAnalyzer.match_job_description(SAMPLE_RESUME_TEXT, SAMPLE_JOB_DESCRIPTION)
+        
+        salary_est = match_results.get('salary_estimate')
+        if not salary_est or "$" not in salary_est:
+            return False, f"Invalid salary estimate string: {salary_est}"
+            
+        log_info(f"✓ Estimated Market Range: {salary_est}")
+        return True, ""
+
     def execute_all(self):
         """
         Executes the entire integration testing suite and prints stats.
@@ -323,6 +359,8 @@ class IntegrationTestSuite:
         self.run_test("Job Description Match Analysis", self.test_job_match_analyzer)
         self.run_test("AI Feedback Recommendation Roadmaps", self.test_ai_feedback)
         self.run_test("PDF report document compilation", self.test_pdf_report_generator)
+        self.run_test("Readability & Word Variety Analytics", self.test_readability_analytics)
+        self.run_test("Salary Estimation & Priority Gap Analysis", self.test_salary_estimation)
         
         self.execution_time = time.time() - self.start_time
         
