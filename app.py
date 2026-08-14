@@ -31,7 +31,7 @@ if 'nav_selection' not in st.session_state:
     st.session_state.nav_selection = "Home Page"
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = [
-        {"role": "assistant", "content": "Welcome to Apex Resume Assistant. Upload your resume or paste a job description and ask me anything about editing, interview prep, or career strategies!"}
+        {"role": "assistant", "content": "Welcome to Resume Analyzer Assistant. Upload your resume or paste a job description and ask me anything about editing, interview prep, or career strategies!"}
     ]
 if 'resume_history' not in st.session_state:
     st.session_state.resume_history = []
@@ -46,7 +46,7 @@ if 'achievements_unlocked' not in st.session_state:
 
 # --- Page Configuration ---
 st.set_page_config(
-    page_title="Apex AI - Premium Resume Intelligence Platform",
+    page_title="Resume Analyzer - AI Resume Intelligence Platform",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -233,7 +233,7 @@ except Exception as e:
 
 # --- SIDEBAR NAVIGATION ---
 with st.sidebar:
-    st.markdown(f"<h1 style='color:{p_color}; font-weight:800; font-size:2rem; margin-bottom:0;'>⚡ APEX AI</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color:{p_color}; font-weight:800; font-size:2rem; margin-bottom:0;'>⚡ RESUME ANALYZER</h1>", unsafe_allow_html=True)
     st.caption("AI Resume Intelligence Platform")
     st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
     
@@ -265,11 +265,11 @@ with st.sidebar:
     st.markdown(
         f"""
         <div style='font-size: 0.8rem; color: {text_secondary}; margin-top: 40px;'>
-        <b>Apex Intelligence v3.0</b><br>
+        <b>Resume Analyzer v3.0</b><br>
         Powered by Logistic Regression NLP.<br>
         Local Flesch Readability Engine.<br>
         ReportLab compliance standard.<br>
-        © 2026 Apex Suite Inc.
+        © 2026 Resume Analyzer Inc.
         </div>
         """,
         unsafe_allow_html=True
@@ -281,7 +281,7 @@ with st.sidebar:
 if st.session_state.nav_selection == "Home Page":
     st.markdown("<div style='text-align: center; padding: 3rem 1rem;'>", unsafe_allow_html=True)
     st.markdown(f"<h1 class='title-gradient' style='font-size: 3.5rem;'>Land More Interviews with AI</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color: {text_secondary}; font-size: 1.4rem; max-width: 800px; margin: 0 auto 2rem auto;'>Apex ATS is a world-class AI Resume Intelligence Platform. Score your resume, check keywords, map gap analyses, and rank applicants in real-time.</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: {text_secondary}; font-size: 1.4rem; max-width: 800px; margin: 0 auto 2rem auto;'>Resume Analyzer is a world-class AI Resume Intelligence Platform. Score your resume, check keywords, map gap analyses, and rank applicants in real-time.</p>", unsafe_allow_html=True)
     
     col_cta1, col_cta2, col_cta3 = st.columns([1, 1, 1])
     with col_cta2:
