@@ -1,4 +1,4 @@
-# Apex ATS — Enterprise AI Resume Analytics Suite
+# Resume Analyzer — Enterprise AI Resume Analytics Suite
 
 [![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/Streamlit-1.20.0-red.svg)](https://streamlit.io/)
@@ -6,7 +6,7 @@
 [![Report Engine](https://img.shields.io/badge/ReportLab-3.6.0-green.svg)](https://www.reportlab.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Apex ATS is a production-grade, enterprise-ready SaaS Applicant Tracking System (ATS) platform. Built upon advanced NLP tokenizers, a multi-class Logistic Regression ML model, and an advanced layout analytics engine, Apex ATS parses candidate profiles, evaluates 20 scoring parameters, executes multi-dimensional Job Description (JD) matching, and compiles reports into styled multi-page PDF documents.
+Resume Analyzer is a production-grade, enterprise-ready SaaS Applicant Tracking System (ATS) platform. Built upon advanced NLP tokenizers, a multi-class Logistic Regression ML model, and an advanced layout analytics engine, Resume Analyzer parses candidate profiles, evaluates 20 scoring parameters, executes multi-dimensional Job Description (JD) matching, and compiles reports into styled multi-page PDF documents.
 
 ---
 
