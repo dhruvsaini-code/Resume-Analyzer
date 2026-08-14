@@ -346,7 +346,7 @@ class IntegrationTestSuite:
         Executes the entire integration testing suite and prints stats.
         """
         print(f"{ANSI_BOLD}{ANSI_YELLOW}==================================================")
-        print("          APEX ATS INTEGRATION TEST SUITE")
+        print("       RESUME ANALYZER INTEGRATION TEST SUITE")
         print(f"=================================================={ANSI_RESET}")
         
         self.start_time = time.time()
