@@ -112,14 +112,28 @@ class ResumeCharts:
         # Close the shape
         categories = categories + [categories[0]]
         values = values + [values[0]]
+        benchmark_values = [88.0] * len(categories)
         
-        fig = go.Figure(data=go.Scatterpolar(
+        fig = go.Figure()
+        
+        # Benchmark line
+        fig.add_trace(go.Scatterpolar(
+            r=benchmark_values,
+            theta=categories,
+            name="Target Benchmark (88%)",
+            line=dict(color='rgba(245, 158, 11, 0.6)', dash='dash', width=1.5),
+            fill='none'
+        ))
+        
+        # Candidate Score
+        fig.add_trace(go.Scatterpolar(
             r=values,
             theta=categories,
+            name="Candidate Score",
             fill='toself',
             line_color='#6366F1',
-            fillcolor='rgba(99, 102, 241, 0.25)',
-            marker=dict(color='#818CF8', size=6)
+            fillcolor='rgba(99, 102, 241, 0.3)',
+            marker=dict(color='#38BDF8', size=7)
         ))
         
         fig.update_layout(
@@ -136,9 +150,10 @@ class ResumeCharts:
                 ),
                 bgcolor='rgba(0,0,0,0)'
             ),
-            showlegend=False,
-            height=320,
-            margin=dict(l=50, r=50, t=30, b=30),
+            showlegend=True,
+            legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color='#94A3B8', size=11)),
+            height=340,
+            margin=dict(l=50, r=50, t=30, b=40),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)'
         )
