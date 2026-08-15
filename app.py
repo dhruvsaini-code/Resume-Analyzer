@@ -83,15 +83,20 @@ st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
     
-    /* Global Theme Overrides */
+    /* Global Theme Overrides with Background Glow */
     html, body, [class*="css"], .stApp {{
         font-family: 'Plus Jakarta Sans', sans-serif;
         background-color: {bg_primary};
+        background-image: 
+            radial-gradient(circle at 15% 15%, {a_color} 0%, transparent 40%),
+            radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
+        background-attachment: fixed;
         color: {text_primary};
     }}
     
     h1, h2, h3, h4, h5, h6 {{
         font-family: 'Outfit', sans-serif;
+        letter-spacing: -0.02em;
     }}
     
     /* Premium Headers */
@@ -100,93 +105,123 @@ st.markdown(f"""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
-        font-size: 2.8rem;
+        font-size: 3rem;
         margin-bottom: 0.2rem;
-        animation: fadeIn 1s ease-out;
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }}
     
     .subtitle-saas {{
         color: {text_secondary};
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         margin-bottom: 2rem;
         font-weight: 400;
+        line-height: 1.6;
     }}
     
     /* Glassmorphism Cards */
     .glass-card {{
         background: {bg_secondary};
-        backdrop-filter: blur(12px) saturate(180%);
-        -webkit-backdrop-filter: blur(12px) saturate(180%);
-        border-radius: 16px;
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border-radius: 18px;
         border: 1px solid {border_color};
-        padding: 1.5rem;
-        box-shadow: 0 10px 30px 0 {card_shadow};
+        padding: 1.6rem;
+        box-shadow: 0 12px 32px 0 {card_shadow};
         margin-bottom: 1.5rem;
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+    }}
+    .glass-card::before {{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: {g_color};
+        opacity: 0.7;
     }}
     .glass-card:hover {{
         transform: translateY(-4px);
-        box-shadow: 0 15px 35px 0 {a_color};
+        box-shadow: 0 20px 40px 0 {a_color};
         border-color: {p_color};
     }}
     
     /* KPIs and gauges */
     .kpi-title {{
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         color: {text_secondary};
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-weight: 600;
+        letter-spacing: 0.12em;
+        font-weight: 700;
         margin-bottom: 0.5rem;
     }}
     .kpi-value {{
-        font-size: 2.2rem;
+        font-size: 2.3rem;
         font-weight: 800;
         color: {text_primary};
-        line-height: 1;
+        line-height: 1.1;
     }}
     .kpi-sub {{
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         color: {p_color};
         margin-top: 0.4rem;
-        font-weight: 500;
+        font-weight: 600;
     }}
     
     /* Custom Badges */
     .saas-badge {{
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 700;
         text-transform: uppercase;
+        letter-spacing: 0.05em;
         display: inline-block;
         border: 1px solid transparent;
+        transition: transform 0.2s ease;
     }}
-    .badge-high {{ background-color: rgba(239, 68, 68, 0.15); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.3); }}
-    .badge-medium {{ background-color: rgba(245, 158, 11, 0.15); color: #FBBF24; border-color: rgba(245, 158, 11, 0.3); }}
-    .badge-low {{ background-color: rgba(59, 130, 246, 0.15); color: #93C5FD; border-color: rgba(59, 130, 246, 0.3); }}
+    .saas-badge:hover {{ transform: scale(1.05); }}
+    .badge-high {{ background-color: rgba(239, 68, 68, 0.18); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.4); }}
+    .badge-medium {{ background-color: rgba(245, 158, 11, 0.18); color: #FBBF24; border-color: rgba(245, 158, 11, 0.4); }}
+    .badge-low {{ background-color: rgba(59, 130, 246, 0.18); color: #93C5FD; border-color: rgba(59, 130, 246, 0.4); }}
+    .badge-success {{ background-color: rgba(16, 185, 129, 0.18); color: #34D399; border-color: rgba(16, 185, 129, 0.4); }}
+    
+    /* Streamlit Button Styling */
+    div.stButton > button {{
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        border: 1px solid {border_color};
+    }}
+    div.stButton > button:hover {{
+        border-color: {p_color};
+        box-shadow: 0 0 15px {a_color};
+        transform: translateY(-2px);
+    }}
     
     /* Drag & Drop uploader style overrides */
     div[data-testid="stFileUploader"] {{
         background: {bg_secondary};
         border: 2px dashed {p_color};
-        border-radius: 12px;
-        padding: 1.5rem;
+        border-radius: 14px;
+        padding: 1.8rem;
         transition: all 0.3s ease;
     }}
     div[data-testid="stFileUploader"]:hover {{
         border-color: #38BDF8;
-        box-shadow: 0 0 15px {a_color};
+        box-shadow: 0 0 20px {a_color};
     }}
     
     /* Animations */
     @keyframes fadeIn {{
-        from {{ opacity: 0; }}
-        to {{ opacity: 1; }}
+        from {{ opacity: 0; transform: translateY(-8px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
     }}
     @keyframes slideUp {{
-        from {{ opacity: 0; transform: translateY(20px); }}
+        from {{ opacity: 0; transform: translateY(24px); }}
         to {{ opacity: 1; transform: translateY(0); }}
     }}
     @keyframes shimmer {{
