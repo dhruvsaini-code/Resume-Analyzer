@@ -622,39 +622,41 @@ elif st.session_state.nav_selection == "Candidate Analyzer":
                     use_container_width=True
                 )
                 
-            # Profile summary card
-            st.subheader("Executive Profile Summary")
+            # Profile summary card with Salary & Status Pills
+            st.subheader("Executive Profile & Market Analytics")
             kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
             with kpi_col1:
                 st.markdown(f"""
                 <div class="glass-card">
                     <div class="kpi-title">Candidate Name</div>
-                    <div class="kpi-value" style="font-size:1.5rem; height:44px; overflow:hidden;">{contact_info['name'] or 'Not Detected'}</div>
-                    <div class="kpi-sub">Loc: {contact_info['location'] or 'Not Disclosed'}</div>
+                    <div class="kpi-value" style="font-size:1.4rem; height:44px; overflow:hidden;">{contact_info['name'] or 'Not Detected'}</div>
+                    <div class="kpi-sub"><span class="saas-badge badge-low">📍 {contact_info['location'] or 'Location N/A'}</span></div>
                 </div>
                 """, unsafe_allow_html=True)
             with kpi_col2:
+                rating_badge = "badge-success" if res_metrics['overall_score'] >= 80 else ("badge-medium" if res_metrics['overall_score'] >= 60 else "badge-high")
                 st.markdown(f"""
                 <div class="glass-card">
-                    <div class="kpi-title">ATS score grade</div>
-                    <div class="kpi-value" style="color:{p_color};">{res_metrics['overall_score']} <span style="font-size:1.2rem; color:{text_secondary};">({res_metrics['rating']})</span></div>
-                    <div class="kpi-sub">Out of 100 max index</div>
+                    <div class="kpi-title">ATS Index Rating</div>
+                    <div class="kpi-value" style="color:{p_color};">{res_metrics['overall_score']} <span style="font-size:1.1rem; color:{text_secondary};">/ 100</span></div>
+                    <div class="kpi-sub"><span class="saas-badge {rating_badge}">Grade {res_metrics['rating']} Candidate</span></div>
                 </div>
                 """, unsafe_allow_html=True)
             with kpi_col3:
+                salary_str = match_results.get('salary_estimate', '$95K - $145K USD')
                 st.markdown(f"""
                 <div class="glass-card">
-                    <div class="kpi-title">Requirements match</div>
-                    <div class="kpi-value" style="color:{p_color};">{match_results['match_score']}%</div>
-                    <div class="kpi-sub">{"JD Alignment Score" if has_jd else "Paste JD to calculate"}</div>
+                    <div class="kpi-title">Market Range Estimate</div>
+                    <div class="kpi-value" style="font-size:1.3rem; color:#34D399; height:44px; overflow:hidden;">{salary_str}</div>
+                    <div class="kpi-sub"><span class="saas-badge badge-success">💼 Role Alignment Fit</span></div>
                 </div>
                 """, unsafe_allow_html=True)
             with kpi_col4:
                 st.markdown(f"""
                 <div class="glass-card">
-                    <div class="kpi-title">Predicted Role Path</div>
-                    <div class="kpi-value" style="font-size:1.4rem; color:#34D399; height:44px; overflow:hidden;">{pred_role}</div>
-                    <div class="kpi-sub">Confidence: {top_confidence:.1f}%</div>
+                    <div class="kpi-title">Predicted Career Role</div>
+                    <div class="kpi-value" style="font-size:1.3rem; color:#818CF8; height:44px; overflow:hidden;">{pred_role}</div>
+                    <div class="kpi-sub"><span class="saas-badge badge-medium">Confidence: {top_confidence:.1f}%</span></div>
                 </div>
                 """, unsafe_allow_html=True)
                 
