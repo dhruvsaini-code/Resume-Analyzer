@@ -111,7 +111,7 @@ class ResumeParser:
             if locs:
                 # filter out false positives like sections or candidate name
                 clean_loc = locs[0].strip()
-                if not any(kw in clean_loc.lower() for kw in ['resume', 'curriculum', 'email', 'phone', 'portfolio']):
+                if not any(kw in clean_loc.lower() for kw in ['resume', 'curriculum', 'email', 'phone', 'portfolio', 'education', 'skills', 'experience']):
                     info['location'] = clean_loc
                     break
         
@@ -133,27 +133,30 @@ class ResumeParser:
         
         if nlp:
             for line in candidate_lines:
-                if "@" in line or "linkedin.com" in line or "github.com" in line or len(line) > 50:
+                clean_line = re.sub(r'^[^\w]+', '', line).strip()
+                if "@" in clean_line or "linkedin.com" in clean_line or "github.com" in clean_line or len(clean_line) > 50:
                     continue
-                doc = nlp(line)
+                doc = nlp(clean_line)
                 for ent in doc.ents:
                     if ent.label_ == "PERSON" and len(ent.text.split()) >= 2:
                         return ent.text.strip()
                         
         # Fallback heuristics
         for line in candidate_lines:
-            if re.search(r'\d', line): # Skip if it contains numbers
+            clean_line = re.sub(r'^[^\w]+', '', line).strip()
+            if re.search(r'\d', clean_line): # Skip if it contains numbers
                 continue
-            if "@" in line or "http" in line or "|" in line or "/" in line or "\\" in line:
+            if "@" in clean_line or "http" in clean_line or "|" in clean_line or "/" in clean_line or "\\" in clean_line:
                 continue
             # Skip if it is a section header
-            if any(h in line.lower() for headers in SECTION_KEYWORDS.values() for h in headers):
+            if any(h in clean_line.lower() for headers in SECTION_KEYWORDS.values() for h in headers):
                 continue
-            words = line.split()
+            words = clean_line.split()
             if 2 <= len(words) <= 4:
-                return line
+                return clean_line
                 
-        return lines[0]
+        return re.sub(r'^[^\w]+', '', lines[0]).strip() or "Candidate Name"
+
 
     def extract_skills(self) -> Dict[str, List[str]]:
         """

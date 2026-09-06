@@ -90,6 +90,29 @@ class JobMatchAnalyzer:
         - Action Verbs Density
         - Industry Terminology
         """
+        # Handle empty/sparse text inputs safely
+        if not resume_text.strip() or not jd_text.strip():
+            return {
+                'match_score': 0.0,
+                'text_similarity': 0.0,
+                'skill_match_score': 0.0,
+                'matching_skills': [],
+                'missing_skills': [],
+                'strong_keywords': [],
+                'weak_keywords': [],
+                'missing_by_category': {},
+                'priority_missing_skills': [],
+                'salary_estimate': "$50,000 - $80,000 USD",
+                'total_jd_skills': 0,
+                'total_matching_skills': 0,
+                'seniority_match': {'candidate': 'MID', 'required': 'MID', 'score': 50.0, 'explanation': 'Insufficient text provided.'},
+                'tech_stack_similarity': {'score': 0.0, 'explanation': 'No tech stack data.'},
+                'experience_similarity': {'score': 0.0, 'explanation': 'No experience data.'},
+                'education_similarity': {'score': 0.0, 'explanation': 'No education data.'},
+                'action_verbs_comparison': {'score': 0.0, 'explanation': 'No action verbs data.'},
+                'industry_terminology': {'score': 0.0, 'explanation': 'No industry acronyms data.'}
+            }
+
         # 1. Parse both texts
         resume_parser = ResumeParser(resume_text)
         jd_parser = ResumeParser(jd_text)
@@ -123,7 +146,7 @@ class JobMatchAnalyzer:
         if jd_skills_flat:
             skill_overlap_score = (len(matching_skills) / len(jd_skills_flat)) * 100
         else:
-            skill_overlap_score = 0.0
+            skill_overlap_score = 100.0 if matching_skills else 50.0
             
         # 2. Text Cosine Similarity
         clean_resume = re.sub(r'[^a-zA-Z\s]', ' ', resume_text.lower())
@@ -132,7 +155,7 @@ class JobMatchAnalyzer:
         tfidf = TfidfVectorizer(stop_words='english', ngram_range=(1, 2))
         try:
             tfidf_matrix = tfidf.fit_transform([clean_resume, clean_jd])
-            text_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0] * 100
+            text_sim = float(cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0] * 100)
         except Exception:
             text_sim = 0.0
             
@@ -180,7 +203,7 @@ class JobMatchAnalyzer:
             exp_score = 100.0
             exp_explanation = f"Success: Candidate has approximately {resume_years:.1f} years of experience, exceeding the required {jd_years_needed} years."
         else:
-            exp_score = max(30.0, (resume_years / jd_years_needed) * 100.0)
+            exp_score = max(30.0, (resume_years / max(1, jd_years_needed)) * 100.0)
             exp_explanation = f"Gap: The job description requests {jd_years_needed} years of experience, but only {resume_years:.1f} years were parsed from your experience timeline."
             
         # 6. Education Rank Similarity
@@ -218,13 +241,15 @@ class JobMatchAnalyzer:
         av_score = min(100.0, (resume_av / max(5, jd_av)) * 100.0)
         av_explanation = f"Action Verbs density: Found {resume_av} in resume vs {jd_av} requested in JD. Active voice improves ATS compliance."
         
-        # 8. Industry Terminology Match
-        # Identify common business/tech acronyms in JD (e.g. ETL, NLP, CI/CD, ROI, KPI, BI)
-        industry_acronyms = set(re.findall(r'\b[A-Z]{2,5}\b', jd_text))
+        # 8. Industry Terminology Match (filter common English words)
+        common_words = {'IN', 'AT', 'IS', 'OR', 'AND', 'THE', 'FOR', 'JOB', 'NEW', 'WE', 'ARE', 'WITH', 'YOU', 'TO', 'OUR'}
+        raw_acronyms = set(re.findall(r'\b[A-Z]{2,5}\b', jd_text))
+        industry_acronyms = {acr for acr in raw_acronyms if acr not in common_words}
         matched_acronyms = {acr for acr in industry_acronyms if acr in resume_text}
         
         industry_score = (len(matched_acronyms) / len(industry_acronyms)) * 100.0 if industry_acronyms else 80.0
-        industry_explanation = f"Matched {len(matched_acronyms)} standard industry acronyms out of {len(industry_acronyms)}: {', '.join(list(matched_acronyms)[:6])}."
+        industry_explanation = f"Matched {len(matched_acronyms)} standard industry acronyms out of {len(industry_acronyms)}: {', '.join(list(matched_acronyms)[:6])}." if industry_acronyms else "Standard tech terminology verified."
+
         
         # 9. Role Match Cosine Similarity
         # Compare job title or predicted role
