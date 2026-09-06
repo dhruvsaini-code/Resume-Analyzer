@@ -308,39 +308,40 @@ class PDFReportGenerator:
         story.append(Spacer(1, 10))
         
         # Generate Matplotlib chart on the fly
-        chart_buffer = io.BytesIO()
-        plt.figure(figsize=(7, 3.5))
-        
-        labels = [
-            'ATS Compatibility', 'Readability', 'Grammar', 'Experience',
-            'Technical Skills', 'Projects', 'Formatting', 'Leadership'
-        ]
-        
-        # Fallback values if scores not mapped
-        score_values = [
-            ats_score,
-            ats_results.get('readability', 75.0),
-            ats_results.get('grammar', 82.0),
-            ats_results.get('experience_score', 70.0),
-            ats_results.get('skills_score', 80.0) / 30.0 * 100.0,
-            ats_results.get('projects_score', 75.0),
-            ats_results.get('formatting_score', 85.0) / 20.0 * 100.0,
-            ats_results.get('leadership_score', 65.0)
-        ]
-        # Clean scales
-        score_values = [max(0.0, min(100.0, v)) for v in score_values]
-        
-        colors_list = ['#1E3A8A', '#0D9488', '#6366F1', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-        
-        plt.barh(labels, score_values, color=colors_list, height=0.6)
-        plt.xlim(0, 100)
-        plt.xlabel('Score out of 100', fontsize=9, fontweight='bold', color='#1F2937')
-        plt.title('Resume Domain Suitability Analysis', fontsize=10, fontweight='bold', color='#1E3A8A')
-        plt.grid(axis='x', linestyle='--', alpha=0.5)
-        plt.tight_layout()
-        plt.savefig(chart_buffer, format='png', dpi=300, bbox_inches='tight')
-        chart_buffer.seek(0)
-        plt.close()
+        try:
+            plt.figure(figsize=(7, 3.5))
+            
+            labels = [
+                'ATS Compatibility', 'Readability', 'Grammar', 'Experience',
+                'Technical Skills', 'Projects', 'Formatting', 'Leadership'
+            ]
+            
+            # Fallback values if scores not mapped
+            score_values = [
+                ats_score,
+                ats_results.get('readability', 75.0),
+                ats_results.get('grammar', 82.0),
+                ats_results.get('experience_score', 70.0),
+                ats_results.get('skills_score', 80.0) / 30.0 * 100.0 if ats_results.get('skills_score') is not None else 80.0,
+                ats_results.get('projects_score', 75.0),
+                ats_results.get('formatting_score', 85.0) / 20.0 * 100.0 if ats_results.get('formatting_score') is not None else 85.0,
+                ats_results.get('leadership_score', 65.0)
+            ]
+            # Clean scales
+            score_values = [max(0.0, min(100.0, float(v))) for v in score_values]
+            
+            colors_list = ['#1E3A8A', '#0D9488', '#6366F1', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+            
+            plt.barh(labels, score_values, color=colors_list, height=0.6)
+            plt.xlim(0, 100)
+            plt.xlabel('Score out of 100', fontsize=9, fontweight='bold', color='#1F2937')
+            plt.title('Resume Domain Suitability Analysis', fontsize=10, fontweight='bold', color='#1E3A8A')
+            plt.grid(axis='x', linestyle='--', alpha=0.5)
+            plt.tight_layout()
+            plt.savefig(chart_buffer, format='png', dpi=300, bbox_inches='tight')
+            chart_buffer.seek(0)
+        finally:
+            plt.close('all')
         
         # Embed matplotlib graph as ReportLab Flowable Image
         story.append(RLImage(chart_buffer, width=440, height=210))
@@ -414,7 +415,8 @@ class PDFReportGenerator:
                 p_name2, p_score2, p_trend2, p_prio2
             ])
             
-        sec_table = Table(sec_rows, colWidths=[110, 45, 50, 60, 110, 45, 50, 60])
+        sec_table = Table(sec_rows, colWidths=[111, 45, 50, 60, 111, 45, 50, 60])
+
         sec_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#E2E8F0")),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
