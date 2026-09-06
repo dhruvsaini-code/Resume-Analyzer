@@ -308,6 +308,7 @@ class PDFReportGenerator:
         story.append(Spacer(1, 10))
         
         # Generate Matplotlib chart on the fly
+        chart_buffer = io.BytesIO()
         try:
             plt.figure(figsize=(7, 3.5))
             

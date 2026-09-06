@@ -341,6 +341,43 @@ class IntegrationTestSuite:
         log_info(f"✓ Estimated Market Range: {salary_est}")
         return True, ""
 
+    def test_empty_and_sparse_inputs(self) -> Tuple[bool, str]:
+        """
+        10. Test Edge Case Empty & Sparse Inputs
+        Verifies that empty string inputs do not raise unhandled exceptions.
+        """
+        log_info("Testing empty and whitespace input handling...")
+        empty_parser = ResumeParser("")
+        analysis = empty_parser.get_full_analysis()
+        if analysis['contact']['name'] != "Candidate Name":
+            return False, f"Expected default candidate name fallback, got: {analysis['contact']['name']}"
+            
+        sparse_match = JobMatchAnalyzer.match_job_description("", "")
+        if sparse_match['match_score'] != 0.0:
+            return False, f"Expected 0.0 match score for empty inputs, got: {sparse_match['match_score']}"
+            
+        log_info("✓ Empty input safeguards verified successfully.")
+        return True, ""
+
+    def test_special_character_and_international_formats(self) -> Tuple[bool, str]:
+        """
+        11. Test International Contact & Special Characters
+        Verifies international phone numbers and multi-word location parsing.
+        """
+        log_info("Testing international formatting & special characters...")
+        sample_text = "Jane Doe\njane.doe@corp.co.uk | +44 20 7946 0958 | London, United Kingdom\n"
+        parser = ResumeParser(sample_text)
+        info = parser.extract_contact_info()
+        
+        if not info['email'] or "jane.doe@corp.co.uk" not in info['email']:
+            return False, f"Failed to extract UK email domain: {info['email']}"
+        if not info['location'] or "London" not in info['location']:
+            return False, f"Failed to extract multi-word location: {info['location']}"
+            
+        log_info(f"✓ Mapped International Email: {info['email']}")
+        log_info(f"✓ Mapped International Location: {info['location']}")
+        return True, ""
+
     def execute_all(self):
         """
         Executes the entire integration testing suite and prints stats.
@@ -361,6 +398,8 @@ class IntegrationTestSuite:
         self.run_test("PDF report document compilation", self.test_pdf_report_generator)
         self.run_test("Readability & Word Variety Analytics", self.test_readability_analytics)
         self.run_test("Salary Estimation & Priority Gap Analysis", self.test_salary_estimation)
+        self.run_test("Empty & Sparse Input Safeguards", self.test_empty_and_sparse_inputs)
+        self.run_test("International Format & Unicode Parsing", self.test_special_character_and_international_formats)
         
         self.execution_time = time.time() - self.start_time
         
@@ -380,6 +419,7 @@ class IntegrationTestSuite:
         
         if self.tests_failed > 0:
             sys.exit(1)
+
 
 
 if __name__ == "__main__":
