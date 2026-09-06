@@ -241,6 +241,7 @@ class JobMatchAnalyzer:
             seniority_score * 0.10
         )
         
+        
         overall_match = round(weighted_score, 1)
         
         # Dynamic Salary Estimate calculation based on seniority, years exp, and tech match
@@ -309,3 +310,4 @@ class JobMatchAnalyzer:
                 'explanation': industry_explanation
             }
         }
+

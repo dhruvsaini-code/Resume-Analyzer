@@ -330,3 +330,4 @@ class ResumeParser:
             'timeline': timeline,
             'text_length': len(self.text)
         }
+
