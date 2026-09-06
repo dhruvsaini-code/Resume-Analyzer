@@ -104,7 +104,7 @@ graph TD
 ├── notebooks/
 │   └── train_model.py         # TF-IDF model training & dataset generation pipeline
 ├── reports/                   # Destination folder for PDF report downloads
-├── test_pipeline.py           # 9-step end-to-end integration test suite
+├── test_pipeline.py           # 11-step end-to-end integration test suite
 ├── requirements.txt           # Python dependency mapping
 └── README.md                  # Professional documentation
 ```
@@ -137,6 +137,7 @@ graph TD
    ```bash
    streamlit run app.py
    ```
+
 
 ---
 
