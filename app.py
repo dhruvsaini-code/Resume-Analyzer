@@ -26,7 +26,7 @@ from utils.charts import ResumeCharts
 if 'theme_mode' not in st.session_state:
     st.session_state.theme_mode = "Dark Mode"
 if 'primary_color' not in st.session_state:
-    st.session_state.primary_color = "Indigo"
+    st.session_state.primary_color = "Ink Blue"
 if 'nav_selection' not in st.session_state:
     st.session_state.nav_selection = "Home Page"
 if 'chat_history' not in st.session_state:
@@ -53,192 +53,20 @@ st.set_page_config(
 )
 
 # --- Dynamic Styles & Theme Colors ---
-COLOR_MAPS = {
-    "Indigo": {"primary": "#6366F1", "gradient": "linear-gradient(135deg, #C084FC 0%, #6366F1 50%, #38BDF8 100%)", "accent": "rgba(99, 102, 241, 0.15)"},
-    "Emerald": {"primary": "#10B981", "gradient": "linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%)", "accent": "rgba(16, 185, 129, 0.15)"},
-    "Rose": {"primary": "#F43F5E", "gradient": "linear-gradient(135deg, #FDA4AF 0%, #F43F5E 50%, #BE123C 100%)", "accent": "rgba(244, 63, 94, 0.15)"},
-    "Amber": {"primary": "#F59E0B", "gradient": "linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #B45309 100%)", "accent": "rgba(245, 158, 11, 0.15)"}
-}
+from premium_theme import get_theme_vars, inject_theme
 
-p_color = COLOR_MAPS[st.session_state.primary_color]["primary"]
-g_color = COLOR_MAPS[st.session_state.primary_color]["gradient"]
-a_color = COLOR_MAPS[st.session_state.primary_color]["accent"]
+theme = get_theme_vars(st.session_state.theme_mode, st.session_state.primary_color)
+inject_theme(theme)
 
-if st.session_state.theme_mode == "Dark Mode":
-    bg_primary = "#0B0F19"
-    bg_secondary = "rgba(17, 24, 39, 0.7)"
-    text_primary = "#F3F4F6"
-    text_secondary = "#94A3B8"
-    border_color = "rgba(255, 255, 255, 0.08)"
-    card_shadow = "rgba(0, 0, 0, 0.4)"
-else:
-    bg_primary = "#F8FAFC"
-    bg_secondary = "rgba(255, 255, 255, 0.85)"
-    text_primary = "#1E293B"
-    text_secondary = "#475569"
-    border_color = "rgba(0, 0, 0, 0.08)"
-    card_shadow = "rgba(0, 0, 0, 0.05)"
-
-st.markdown(f"""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-    
-    /* Global Theme Overrides with Background Glow */
-    html, body, [class*="css"], .stApp {{
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: {bg_primary};
-        background-image: 
-            radial-gradient(circle at 15% 15%, {a_color} 0%, transparent 40%),
-            radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 40%);
-        background-attachment: fixed;
-        color: {text_primary};
-    }}
-    
-    h1, h2, h3, h4, h5, h6 {{
-        font-family: 'Outfit', sans-serif;
-        letter-spacing: -0.02em;
-    }}
-    
-    /* Premium Headers */
-    .title-gradient {{
-        background: {g_color};
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
-        font-size: 3rem;
-        margin-bottom: 0.2rem;
-        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }}
-    
-    .subtitle-saas {{
-        color: {text_secondary};
-        font-size: 1.15rem;
-        margin-bottom: 2rem;
-        font-weight: 400;
-        line-height: 1.6;
-    }}
-    
-    /* Glassmorphism Cards */
-    .glass-card {{
-        background: {bg_secondary};
-        backdrop-filter: blur(16px) saturate(180%);
-        -webkit-backdrop-filter: blur(16px) saturate(180%);
-        border-radius: 18px;
-        border: 1px solid {border_color};
-        padding: 1.6rem;
-        box-shadow: 0 12px 32px 0 {card_shadow};
-        margin-bottom: 1.5rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        overflow: hidden;
-    }}
-    .glass-card::before {{
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: {g_color};
-        opacity: 0.7;
-    }}
-    .glass-card:hover {{
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px 0 {a_color};
-        border-color: {p_color};
-    }}
-    
-    /* KPIs and gauges */
-    .kpi-title {{
-        font-size: 0.82rem;
-        color: {text_secondary};
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }}
-    .kpi-value {{
-        font-size: 2.3rem;
-        font-weight: 800;
-        color: {text_primary};
-        line-height: 1.1;
-    }}
-    .kpi-sub {{
-        font-size: 0.82rem;
-        color: {p_color};
-        margin-top: 0.4rem;
-        font-weight: 600;
-    }}
-    
-    /* Custom Badges */
-    .saas-badge {{
-        padding: 5px 12px;
-        border-radius: 8px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        display: inline-block;
-        border: 1px solid transparent;
-        transition: transform 0.2s ease;
-    }}
-    .saas-badge:hover {{ transform: scale(1.05); }}
-    .badge-high {{ background-color: rgba(239, 68, 68, 0.18); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.4); }}
-    .badge-medium {{ background-color: rgba(245, 158, 11, 0.18); color: #FBBF24; border-color: rgba(245, 158, 11, 0.4); }}
-    .badge-low {{ background-color: rgba(59, 130, 246, 0.18); color: #93C5FD; border-color: rgba(59, 130, 246, 0.4); }}
-    .badge-success {{ background-color: rgba(16, 185, 129, 0.18); color: #34D399; border-color: rgba(16, 185, 129, 0.4); }}
-    
-    /* Streamlit Button Styling */
-    div.stButton > button {{
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.25s ease;
-        border: 1px solid {border_color};
-    }}
-    div.stButton > button:hover {{
-        border-color: {p_color};
-        box-shadow: 0 0 15px {a_color};
-        transform: translateY(-2px);
-    }}
-    
-    /* Drag & Drop uploader style overrides */
-    div[data-testid="stFileUploader"] {{
-        background: {bg_secondary};
-        border: 2px dashed {p_color};
-        border-radius: 14px;
-        padding: 1.8rem;
-        transition: all 0.3s ease;
-    }}
-    div[data-testid="stFileUploader"]:hover {{
-        border-color: #38BDF8;
-        box-shadow: 0 0 20px {a_color};
-    }}
-    
-    /* Animations */
-    @keyframes fadeIn {{
-        from {{ opacity: 0; transform: translateY(-8px); }}
-        to {{ opacity: 1; transform: translateY(0); }}
-    }}
-    @keyframes slideUp {{
-        from {{ opacity: 0; transform: translateY(24px); }}
-        to {{ opacity: 1; transform: translateY(0); }}
-    }}
-    @keyframes shimmer {{
-        0% {{ background-position: -200% 0; }}
-        100% {{ background-position: 200% 0; }}
-    }}
-    
-    .shimmer-loading {{
-        background: linear-gradient(90deg, {border_color} 25%, {p_color} 50%, {border_color} 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-        border-radius: 8px;
-        height: 16px;
-        margin-bottom: 8px;
-    }}
-</style>
-""", unsafe_allow_html=True)
+p_color = theme["primary"]
+g_color = theme["gradient"]
+a_color = theme["accent"]
+bg_primary = theme["bg_primary"]
+bg_secondary = theme["bg_secondary"]
+text_primary = theme["text_primary"]
+text_secondary = theme["text_secondary"]
+border_color = theme["border_color"]
+card_shadow = theme["card_shadow"]
 
 # Helper function to trigger Confetti success
 def trigger_confetti():
@@ -295,7 +123,9 @@ with st.sidebar:
     st.divider()
     st.markdown("### Settings Panel")
     st.session_state.theme_mode = st.selectbox("Interface Theme", ["Dark Mode", "Light Mode"])
-    st.session_state.primary_color = st.selectbox("Primary Palette", ["Indigo", "Emerald", "Rose", "Amber"])
+    palette_options = ["Ink Blue", "Editor Red", "Ledger Green", "Graphite"]
+    current_idx = palette_options.index(st.session_state.primary_color) if st.session_state.primary_color in palette_options else 0
+    st.session_state.primary_color = st.selectbox("Primary Palette", palette_options, index=current_idx)
     
     st.markdown(
         f"""
