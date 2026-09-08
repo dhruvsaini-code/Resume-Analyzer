@@ -131,8 +131,8 @@ class ResumeCharts:
             theta=categories,
             name="Candidate Score",
             fill='toself',
-            line_color='#6366F1',
-            fillcolor='rgba(99, 102, 241, 0.3)',
+            line_color='#2C3E63',
+            fillcolor='rgba(44, 62, 99, 0.3)',
             marker=dict(color='#38BDF8', size=7)
         ))
         
