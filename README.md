@@ -84,7 +84,8 @@ graph TD
 ## 📂 Project Structure
 
 ```text
-├── app.py                     # Main Streamlit SaaS application dashboard (Glassmorphic Theme & Exports)
+├── app.py                     # Main Streamlit SaaS application dashboard
+├── premium_theme.py           # Editorial Audit theme engine (Source Serif 4, IBM Plex fonts, flat index cards)
 ├── utils/
 │   ├── __init__.py
 │   ├── extractor.py           # Text parser for PDF & DOCX formats
