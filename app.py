@@ -1005,23 +1005,26 @@ elif st.session_state.nav_selection == "Recruiter Hub":
     st.markdown(f"<h1 class='title-gradient'>Recruiter Screening Panel</h1>", unsafe_allow_html=True)
     st.markdown(f"<p class='subtitle-saas'>Upload multiple candidate resumes to compare alignment metrics and rank applicant scores.</p>", unsafe_allow_html=True)
     
-    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.subheader("1. Paste Job Post Requirements")
-    target_jd = st.text_area("Paste target job posting here:", height=100, placeholder="We are looking for a Data Engineer who specializes in Apache Spark, Python, and ETL pipelines...")
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.subheader("2. Upload Candidate Resume Profiles")
-    uploaded_files = st.file_uploader(
-        "Upload multiple resume files (PDF & DOCX allowed)",
-        type=["pdf", "docx"],
-        accept_multiple_files=True,
-        help="Drag and drop multiple candidate resumes to rank them."
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+    col_r1, col_r2 = st.columns([1, 1])
+    with col_r1:
+        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+        st.subheader("🎯 1. Paste Job Requirements")
+        target_jd = st.text_area("Target Job Posting:", height=110, placeholder="We are looking for a Senior Software Engineer / Data Engineer with Python, Docker, SQL, and Cloud infrastructure experience...")
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+    with col_r2:
+        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+        st.subheader("👥 2. Bulk Candidate Resumes")
+        uploaded_files = st.file_uploader(
+            "Upload candidate resumes (PDF & DOCX allowed)",
+            type=["pdf", "docx"],
+            accept_multiple_files=True,
+            help="Drag and drop multiple applicant resumes to compare."
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
     
     if uploaded_files and len(target_jd.strip()) > 30:
-        with st.spinner("Processing candidate profiles..."):
+        with st.spinner("⚡ Screening applicant resumes against requirements..."):
             candidate_list = []
             
             for file in uploaded_files:
@@ -1044,6 +1047,7 @@ elif st.session_state.nav_selection == "Recruiter Hub":
                     res_metrics = ResumeAnalyticsEngine.calculate_metrics(parser, conf)
                     
                     candidate_list.append({
+                        "Rank": 0,
                         "Name": contact['name'] or file.name.split('.')[0],
                         "Match Score (%)": match_res['match_score'],
                         "Overall Score": res_metrics['overall_score'],
@@ -1051,7 +1055,7 @@ elif st.session_state.nav_selection == "Recruiter Hub":
                         "Predicted Role": role,
                         "Email": contact['email'] or "N/A",
                         "Skills Count": len(parser.get_full_analysis()['all_skills']),
-                        "Missing Skills": ", ".join(match_res['missing_skills'][:4])
+                        "Missing Skills": ", ".join(match_res['missing_skills'][:4]) if match_res['missing_skills'] else "None"
                     })
                 except Exception as e:
                     st.warning(f"Error reading file '{file.name}': {e}")
@@ -1059,35 +1063,51 @@ elif st.session_state.nav_selection == "Recruiter Hub":
             if candidate_list:
                 df = pd.DataFrame(candidate_list)
                 df = df.sort_values(by=["Match Score (%)", "Overall Score"], ascending=False).reset_index(drop=True)
+                df['Rank'] = [f"#{i+1}" for i in range(len(df))]
                 
-                # Summary metrics
+                # Summary KPI cards
                 rec_col1, rec_col2, rec_col3 = st.columns(3)
                 with rec_col1:
                     st.markdown(f"""
-                    <div class="glass-card">
-                        <div class="kpi-title">Resumes Screened</div>
-                        <div class="kpi-value" style="color:{p_color};">{len(df)} Profiles</div>
+                    <div class="glass-card" style="padding:1.2rem;">
+                        <div class="kpi-title">👥 Resumes Screened</div>
+                        <div class="kpi-value" style="color:{p_color};">{len(df)} Applicants</div>
+                        <div class="kpi-sub">Parsed & Ranked Batch</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with rec_col2:
+                    top_name = df.iloc[0]['Name']
+                    top_score = df.iloc[0]['Match Score (%)']
                     st.markdown(f"""
-                    <div class="glass-card">
-                        <div class="kpi-title">Top Ranked Match</div>
-                        <div class="kpi-value" style="color:{p_color}; font-size:1.3rem; height:44px; overflow:hidden;">{df.iloc[0]['Name']} ({df.iloc[0]['Match Score (%)']}%)</div>
+                    <div class="glass-card" style="padding:1.2rem;">
+                        <div class="kpi-title">🏆 Top Candidate</div>
+                        <div class="kpi-value" style="color:#34D399; font-size:1.35rem; height:38px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{top_name}</div>
+                        <div class="kpi-sub">Match Score: {top_score}% Fitment</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with rec_col3:
                     avg_score = df['Overall Score'].mean()
                     st.markdown(f"""
-                    <div class="glass-card">
-                        <div class="kpi-title">Average Capability score</div>
-                        <div class="kpi-value" style="color:{p_color};">{avg_score:.1f} / 100</div>
+                    <div class="glass-card" style="padding:1.2rem;">
+                        <div class="kpi-title">📊 Average Score</div>
+                        <div class="kpi-value" style="color:{p_color};">{avg_score:.1f} <span style="font-size:1.1rem; color:{text_secondary};">/ 100</span></div>
+                        <div class="kpi-sub">Cohort Benchmark</div>
                     </div>
                     """, unsafe_allow_html=True)
                     
                 st.divider()
-                st.markdown("### Candidate Ranking Dashboard")
-                st.dataframe(df, use_container_width=True)
+                st.markdown("### 🏆 Candidate Screening Matrix")
+                st.dataframe(
+                    df,
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={
+                        "Rank": st.column_config.TextColumn("Rank", width="small"),
+                        "Match Score (%)": st.column_config.ProgressColumn("Match Fitment (%)", min_value=0, max_value=100, format="%d%%"),
+                        "Overall Score": st.column_config.NumberColumn("Overall Index", format="%d pts"),
+                        "ATS Score": st.column_config.NumberColumn("ATS Score", format="%d pts"),
+                    }
+                )
                 
                 # Comparison Chart
                 fig_bar = px.bar(
@@ -1095,68 +1115,95 @@ elif st.session_state.nav_selection == "Recruiter Hub":
                     x="Name",
                     y="Match Score (%)",
                     color="Overall Score",
-                    title="Candidate Match % vs Overall Capability Score",
-                    template="plotly_dark"
+                    title="Candidate Fitment Match (%) vs Overall Capability Index",
+                    template="plotly_dark",
+                    color_continuous_scale="purples"
+                )
+                fig_bar.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font={'color': text_primary},
+                    height=340
                 )
                 st.plotly_chart(fig_bar, use_container_width=True)
             else:
                 st.error("No resumes could be successfully parsed.")
     elif uploaded_files:
-        st.warning("Please paste a target Job Description to compare candidate alignment.")
+        st.warning("⚠️ Please paste a target Job Description to rank candidate alignment.")
     else:
-        st.info("💡 Recruiter Guide: Paste the job requirements and upload multiple resumes to comparison ranking grid.")
+        st.info("💡 Recruiter Guide: Paste job requirements on the left and upload multiple resumes on the right to auto-rank candidates.")
 
 # ==========================================
 # VIEW 4: AI ASSISTANT CHAT
 # ==========================================
 elif st.session_state.nav_selection == "AI Assistant":
     st.markdown(f"<h1 class='title-gradient'>AI Resume Assistant</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p class='subtitle-saas'>Interact with the resume assistant to review points, practice mock interviews, and get growth tips.</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='subtitle-saas'>Interact with the resume assistant to edit bullet points, practice mock behavioral questions, and optimize your application strategy.</p>", unsafe_allow_html=True)
     
-    # Custom Sidebar in page to select prompts
     chat_col1, chat_col2 = st.columns([1, 3])
     with chat_col1:
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.subheader("💡 Interactive Tools")
-        st.caption("Quickly trigger mock interview simulations or writing helpers.")
-        
+        st.subheader("💡 Mode Console")
         mode = st.radio("Choose Mode", ["General Chat", "Mock Interview", "Bullet Point Editor"])
         
-        if mode == "Mock Interview":
-            st.info("The assistant will ask you behavioral and technical trivia questions. Type your answer to get graded.")
-            if st.button("Start Mock Interview"):
-                st.session_state.chat_history.append({"role": "assistant", "content": "Let's begin the mock interview! Walk me through a challenging technical problem you solved, your specific actions, and the business impact."})
-                st.session_state.achievements_unlocked["Interactive Chat Session"] = True
-                st.rerun()
-        elif mode == "Bullet Point Editor":
-            st.info("Type a standard accomplishment point in the chat box to have the AI rewrite it following XYZ formula.")
+        st.markdown("<hr style='border-color: rgba(255,255,255,0.08); margin: 15px 0;'>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:0.8rem; font-weight:700; color:" + text_secondary + "; text-transform:uppercase; margin-bottom:8px;'>Quick Actions</div>", unsafe_allow_html=True)
+        
+        if st.button("🚀 Practice STAR Method", use_container_width=True):
+            st.session_state.chat_history.append({"role": "assistant", "content": "Let's structure your behavioral response using STAR (Situation, Task, Action, Result). What challenging situation did you face in your previous project?"})
+            st.session_state.achievements_unlocked["Interactive Chat Session"] = True
+            st.rerun()
+            
+        if st.button("⚡ Upgrade Bullet Point", use_container_width=True):
+            st.session_state.chat_history.append({"role": "assistant", "content": "Paste your resume bullet point below, and I will rewrite it into Google's XYZ formula: 'Accomplished [X] as measured by [Y], by doing [Z]'."})
+            st.rerun()
             
         st.markdown("</div>", unsafe_allow_html=True)
         
     with chat_col2:
-        chat_container = st.container()
-        with chat_container:
-            for msg in st.session_state.chat_history:
-                if msg["role"] == "assistant":
-                    st.markdown(f"<div style='background: {a_color}; border-left: 4px solid {p_color}; padding: 10px; border-radius: 8px; margin-bottom: 10px;'><b>🤖 Assistant:</b><br>{msg['content']}</div>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<div style='background: {bg_secondary}; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid {border_color};'><b>👤 You:</b><br>{msg['content']}</div>", unsafe_allow_html=True)
-                    
-        # User input field
-        user_msg = st.chat_input("Ask me about resume revisions or input an interview answer...")
+        st.markdown("<div class='glass-card' style='min-height: 480px;'>", unsafe_allow_html=True)
+        for msg in st.session_state.chat_history:
+            if msg["role"] == "assistant":
+                st.markdown(
+                    f"""
+                    <div style='background: {bg_secondary}; border-left: 4px solid {p_color}; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; border-top: 1px solid {border_color}; border-right: 1px solid {border_color}; border-bottom: 1px solid {border_color};'>
+                        <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 6px;'>
+                            <span style='font-size: 1.1rem;'>🤖</span>
+                            <span style='font-weight: 700; color: {p_color}; font-size: 0.9rem;'>Apex AI Assistant</span>
+                        </div>
+                        <div style='line-height: 1.6; color: {text_primary};'>{msg['content']}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"""
+                    <div style='background: {a_color}; border-right: 4px solid #38BDF8; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; border-top: 1px solid {border_color}; border-left: 1px solid {border_color}; border-bottom: 1px solid {border_color}; text-align: left;'>
+                        <div style='display: flex; align-items: center; gap: 8px; margin-bottom: 6px;'>
+                            <span style='font-size: 1.1rem;'>👤</span>
+                            <span style='font-weight: 700; color: #38BDF8; font-size: 0.9rem;'>You</span>
+                        </div>
+                        <div style='line-height: 1.6; color: {text_primary};'>{msg['content']}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
+        user_msg = st.chat_input("Ask about resume optimization, bullet point edits, or interview prep...")
         if user_msg:
             st.session_state.chat_history.append({"role": "user", "content": user_msg})
             
-            # Simple simulation logic for chat responses
             if mode == "Mock Interview":
-                resp = f"Excellent response! You structured the scenario well. However, you can make this point stronger by adding numeric metrics (e.g. 'reduced connection error rates by 15%'). Next question: How do you handle conflicts with colleagues?"
+                resp = f"Great response! You clearly outlined the core problem. To make it even stronger, quantify your outcome (e.g. 'reduced latency by 28%'). Next question: How do you prioritize tasks when deadlines overlap?"
             elif mode == "Bullet Point Editor":
-                resp = f"Here is the upgraded Google XYZ version of your bullet point:\n- Spearheaded system optimization by designing dynamic index caches, reducing average query fetch times by 35% as measured by synthetic log metrics."
+                resp = f"Here is the upgraded Google XYZ version of your bullet point:\n\n• **Spearheaded system architecture redesign** by developing dynamic memory caches, reducing query latency by **35%** across 50,000+ daily requests."
             else:
-                resp = f"I've analyzed your question. To optimize your resume layout for '{user_msg}', focus on clear sections headers, past-tense active verbs, and distinct technical keywords pinned in the top third of the page."
+                resp = f"To optimize your resume layout for '{user_msg}', ensure clear section headers, past-tense active verbs, and distinct technical keywords placed in the top third of your resume."
                 
             st.session_state.chat_history.append({"role": "assistant", "content": resp})
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==========================================
 # VIEW 5: SETTINGS & EXTRAS
