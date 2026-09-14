@@ -315,45 +315,70 @@ except Exception as e:
 
 # --- SIDEBAR NAVIGATION ---
 with st.sidebar:
-    st.markdown(f"<h1 style='color:{p_color}; font-weight:800; font-size:2rem; margin-bottom:0;'>⚡ RESUME ANALYZER</h1>", unsafe_allow_html=True)
-    st.caption("AI Resume Intelligence Platform")
-    st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style='background: {a_color}; border: 1px solid {border_color}; padding: 1.2rem; border-radius: 16px; margin-bottom: 1.2rem; position: relative;'>
+            <div style='display: flex; align-items: center; justify-content: space-between;'>
+                <h1 style='color: {p_color}; font-weight: 900; font-size: 1.8rem; margin: 0; letter-spacing: -0.03em;'>⚡ APEX AI</h1>
+                <span class='saas-badge badge-emerald' style='font-size: 0.65rem;'><span style='height: 6px; width: 6px; background-color: #34D399; border-radius: 50%; display: inline-block; margin-right: 2px;'></span> V3.0</span>
+            </div>
+            <div style='font-size: 0.82rem; color: {text_secondary}; margin-top: 4px; font-weight: 500;'>Resume Intelligence Platform</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown("<div style='font-size: 0.75rem; font-weight: 700; color: " + text_secondary + "; text-transform: uppercase; letter-spacing: 0.1em; margin: 0.5rem 0 0.4rem 0.2rem;'>Navigation Console</div>", unsafe_allow_html=True)
     
     # Custom Sidebar Navigation Menu Items
     nav_items = {
-        "Home Page": "🏠 Platform Home",
-        "Candidate Analyzer": "📊 AI Profile Analyzer",
-        "Recruiter Hub": "👥 Recruiter Screening",
-        "AI Assistant": "💬 Assistant Chat Console",
-        "Settings & Extras": "⚙️ Extras & Generators",
-        "ML Diagnostics": "🛠️ ML Performance Details"
+        "Home Page": ("🏠", "Platform Home", "Overview & Pricing"),
+        "Candidate Analyzer": ("📊", "AI Profile Analyzer", "Audit & Match Score"),
+        "Recruiter Hub": ("👥", "Recruiter Screening", "Bulk Applicant Rank"),
+        "AI Assistant": ("💬", "Assistant Chat", "Interview Prep & XYZ"),
+        "Settings & Extras": ("⚙️", "Extras & Generators", "Templates & Outreach"),
+        "ML Diagnostics": ("🛠️", "ML Diagnostics", "Classifier Metrics")
     }
     
-    for key, label in nav_items.items():
-        # Custom button selection check
-        selected_style = f"background: {g_color}; color: white; border: none; font-weight: 700; width: 100%; text-align: left;"
-        standard_style = "width: 100%; text-align: left;"
-        
+    for key, (icon, title, desc) in nav_items.items():
         is_selected = st.session_state.nav_selection == key
-        if st.button(label, key=f"nav_btn_{key}", use_container_width=True):
+        btn_label = f"{icon}  {title}"
+        
+        if st.button(btn_label, key=f"nav_btn_{key}", use_container_width=True, type="primary" if is_selected else "secondary"):
             st.session_state.nav_selection = key
             st.rerun()
             
     st.divider()
-    st.markdown("### Settings Panel")
-    st.session_state.theme_mode = st.selectbox("Interface Theme", ["Dark Mode", "Light Mode"])
-    palette_options = ["Ink Blue", "Editor Red", "Ledger Green", "Graphite"]
+    
+    # Engine Status Card Widget
+    st.markdown(
+        f"""
+        <div style='background: {bg_secondary}; border: 1px solid {border_color}; border-radius: 12px; padding: 0.9rem 1rem; margin-bottom: 1.2rem;'>
+            <div style='font-size: 0.75rem; font-weight: 700; color: {text_secondary}; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;'>System Status</div>
+            <div style='display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem;'>
+                <span>NLP Classifier</span>
+                <span style='color: #34D399; font-weight: 700;'>● Operational</span>
+            </div>
+            <div style='display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; margin-top: 4px;'>
+                <span>Flesch Engine</span>
+                <span style='color: #34D399; font-weight: 700;'>● 19 Rules Active</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.markdown("<div style='font-size: 0.75rem; font-weight: 700; color: " + text_secondary + "; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem;'>Theme Preferences</div>", unsafe_allow_html=True)
+    st.session_state.theme_mode = st.selectbox("Interface Theme", ["Dark Mode", "Light Mode"], label_visibility="collapsed")
+    palette_options = ["Indigo", "Emerald", "Rose", "Amber"]
     current_idx = palette_options.index(st.session_state.primary_color) if st.session_state.primary_color in palette_options else 0
-    st.session_state.primary_color = st.selectbox("Primary Palette", palette_options, index=current_idx)
+    st.session_state.primary_color = st.selectbox("Primary Palette", palette_options, index=current_idx, label_visibility="collapsed")
     
     st.markdown(
         f"""
-        <div style='font-size: 0.8rem; color: {text_secondary}; margin-top: 40px;'>
-        <b>Resume Analyzer v3.0</b><br>
-        Powered by Logistic Regression NLP.<br>
-        Local Flesch Readability Engine.<br>
-        ReportLab compliance standard.<br>
-        © 2026 Resume Analyzer Inc.
+        <div style='font-size: 0.78rem; color: {text_secondary}; margin-top: 25px; padding-top: 15px; border-top: 1px solid {border_color}; line-height: 1.5;'>
+        <b>Apex Intelligence Platform</b><br>
+        © 2026 Apex Suite Inc. All rights reserved.
         </div>
         """,
         unsafe_allow_html=True
