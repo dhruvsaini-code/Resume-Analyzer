@@ -53,20 +53,239 @@ st.set_page_config(
 )
 
 # --- Dynamic Styles & Theme Colors ---
-from premium_theme import get_theme_vars, inject_theme
+COLOR_MAPS = {
+    "Indigo": {"primary": "#6366F1", "gradient": "linear-gradient(135deg, #A855F7 0%, #6366F1 50%, #38BDF8 100%)", "accent": "rgba(99, 102, 241, 0.18)", "glow": "rgba(99, 102, 241, 0.35)"},
+    "Emerald": {"primary": "#10B981", "gradient": "linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%)", "accent": "rgba(16, 185, 129, 0.18)", "glow": "rgba(16, 185, 129, 0.35)"},
+    "Rose": {"primary": "#F43F5E", "gradient": "linear-gradient(135deg, #FB7185 0%, #F43F5E 50%, #E11D48 100%)", "accent": "rgba(244, 63, 94, 0.18)", "glow": "rgba(244, 63, 94, 0.35)"},
+    "Amber": {"primary": "#F59E0B", "gradient": "linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%)", "accent": "rgba(245, 158, 11, 0.18)", "glow": "rgba(245, 158, 11, 0.35)"}
+}
 
-theme = get_theme_vars(st.session_state.theme_mode, st.session_state.primary_color)
-inject_theme(theme)
+p_color = COLOR_MAPS[st.session_state.primary_color]["primary"] if st.session_state.primary_color in COLOR_MAPS else COLOR_MAPS["Indigo"]["primary"]
+g_color = COLOR_MAPS[st.session_state.primary_color]["gradient"] if st.session_state.primary_color in COLOR_MAPS else COLOR_MAPS["Indigo"]["gradient"]
+a_color = COLOR_MAPS[st.session_state.primary_color]["accent"] if st.session_state.primary_color in COLOR_MAPS else COLOR_MAPS["Indigo"]["accent"]
+glow_color = COLOR_MAPS[st.session_state.primary_color]["glow"] if st.session_state.primary_color in COLOR_MAPS else COLOR_MAPS["Indigo"]["glow"]
 
-p_color = theme["primary"]
-g_color = theme["gradient"]
-a_color = theme["accent"]
-bg_primary = theme["bg_primary"]
-bg_secondary = theme["bg_secondary"]
-text_primary = theme["text_primary"]
-text_secondary = theme["text_secondary"]
-border_color = theme["border_color"]
-card_shadow = theme["card_shadow"]
+if st.session_state.theme_mode == "Dark Mode":
+    bg_primary = "#090D16"
+    bg_secondary = "rgba(15, 23, 42, 0.75)"
+    bg_card = "rgba(17, 24, 39, 0.65)"
+    text_primary = "#F8FAFC"
+    text_secondary = "#94A3B8"
+    border_color = "rgba(255, 255, 255, 0.08)"
+    card_shadow = "rgba(0, 0, 0, 0.45)"
+else:
+    bg_primary = "#F8FAFC"
+    bg_secondary = "rgba(255, 255, 255, 0.9)"
+    bg_card = "rgba(255, 255, 255, 0.95)"
+    text_primary = "#0F172A"
+    text_secondary = "#475569"
+    border_color = "rgba(0, 0, 0, 0.08)"
+    card_shadow = "rgba(0, 0, 0, 0.06)"
+
+st.markdown(f"""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+    
+    /* Global Theme Overrides */
+    html, body, [class*="css"], .stApp {{
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: {bg_primary};
+        background-image: 
+            radial-gradient(at 100% 0%, {a_color} 0px, transparent 50%),
+            radial-gradient(at 0% 100%, rgba(56, 189, 248, 0.08) 0px, transparent 50%);
+        background-attachment: fixed;
+        color: {text_primary};
+    }}
+    
+    h1, h2, h3, h4, h5, h6 {{
+        font-family: 'Outfit', sans-serif;
+        letter-spacing: -0.02em;
+    }}
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {{
+        width: 8px;
+        height: 8px;
+    }}
+    ::-webkit-scrollbar-track {{
+        background: {bg_primary};
+    }}
+    ::-webkit-scrollbar-thumb {{
+        background: rgba(148, 163, 184, 0.2);
+        border-radius: 4px;
+    }}
+    ::-webkit-scrollbar-thumb:hover {{
+        background: {p_color};
+    }}
+    
+    /* Premium Headers */
+    .title-gradient {{
+        background: {g_color};
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        font-size: 2.8rem;
+        margin-bottom: 0.2rem;
+        animation: fadeIn 0.8s ease-out;
+        letter-spacing: -0.03em;
+    }}
+    
+    .subtitle-saas {{
+        color: {text_secondary};
+        font-size: 1.15rem;
+        margin-bottom: 2rem;
+        font-weight: 400;
+        line-height: 1.6;
+    }}
+    
+    /* Glassmorphism Cards */
+    .glass-card {{
+        background: {bg_card};
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border-radius: 18px;
+        border: 1px solid {border_color};
+        padding: 1.6rem;
+        box-shadow: 0 10px 30px -5px {card_shadow};
+        margin-bottom: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }}
+    .glass-card::before {{
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    }}
+    .glass-card:hover {{
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px -10px {glow_color};
+        border-color: rgba(99, 102, 241, 0.35);
+    }}
+    
+    /* KPI Cards */
+    .kpi-card {{
+        background: {bg_secondary};
+        border-radius: 14px;
+        border: 1px solid {border_color};
+        padding: 1.25rem 1.4rem;
+        transition: all 0.25s ease;
+    }}
+    .kpi-card:hover {{
+        border-color: {p_color};
+        box-shadow: 0 8px 24px -6px {a_color};
+    }}
+    .kpi-title {{
+        font-size: 0.78rem;
+        color: {text_secondary};
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }}
+    .kpi-value {{
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: {text_primary};
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }}
+    .kpi-sub {{
+        font-size: 0.82rem;
+        color: {p_color};
+        margin-top: 0.45rem;
+        font-weight: 600;
+    }}
+    
+    /* Custom Badges */
+    .saas-badge {{
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+    }}
+    .badge-high {{ background-color: rgba(239, 68, 68, 0.15); color: #FCA5A5; border-color: rgba(239, 68, 68, 0.3); }}
+    .badge-medium {{ background-color: rgba(245, 158, 11, 0.15); color: #FBBF24; border-color: rgba(245, 158, 11, 0.3); }}
+    .badge-low {{ background-color: rgba(59, 130, 246, 0.15); color: #93C5FD; border-color: rgba(59, 130, 246, 0.3); }}
+    .badge-emerald {{ background-color: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.3); }}
+    .badge-indigo {{ background-color: rgba(99, 102, 241, 0.15); color: #818CF8; border-color: rgba(99, 102, 241, 0.3); }}
+    
+    /* Streamlit Tabs Overrides */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 8px;
+        background: {bg_secondary};
+        padding: 6px;
+        border-radius: 12px;
+        border: 1px solid {border_color};
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        height: 42px;
+        white-space: pre;
+        border-radius: 8px;
+        color: {text_secondary};
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0 16px;
+        transition: all 0.2s ease;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background: {g_color} !important;
+        color: white !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 15px {a_color};
+    }}
+    
+    /* Drag & Drop uploader style overrides */
+    div[data-testid="stFileUploader"] {{
+        background: {bg_secondary};
+        border: 2px dashed {p_color};
+        border-radius: 14px;
+        padding: 1.6rem;
+        transition: all 0.3s ease;
+    }}
+    div[data-testid="stFileUploader"]:hover {{
+        border-color: #38BDF8;
+        box-shadow: 0 0 20px {glow_color};
+    }}
+    
+    /* Primary Buttons Styling */
+    .stButton > button {{
+        border-radius: 10px;
+        font-weight: 600;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }}
+    .stButton > button:hover {{
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px {a_color};
+    }}
+
+    /* Animations */
+    @keyframes fadeIn {{
+        from {{ opacity: 0; transform: translateY(-6px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
+    }}
+    @keyframes slideUp {{
+        from {{ opacity: 0; transform: translateY(18px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
+    }}
+    @keyframes pulse-glow {{
+        0%, 100% {{ opacity: 0.4; transform: scale(1); }}
+        50% {{ opacity: 0.8; transform: scale(1.05); }}
+    }}
+</style>
+""", unsafe_allow_html=True)
 
 # Helper function to trigger Confetti success
 def trigger_confetti():
