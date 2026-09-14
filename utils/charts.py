@@ -62,46 +62,6 @@ class ResumeCharts:
         return fig
 
     @staticmethod
-    def create_readability_gauge(score: float, word_variety: float) -> go.Figure:
-        """
-        Creates a dual indicator gauge for Flesch Readability and Word Variety Ratio.
-        """
-        fig = go.Figure()
-        fig.add_trace(go.Indicator(
-            mode = "gauge+number",
-            value = score,
-            title = {'text': "Readability Index", 'font': {'size': 14, 'color': '#38BDF8'}},
-            domain = {'x': [0, 0.48], 'y': [0, 1]},
-            gauge = {
-                'axis': {'range': [0, 100], 'tickcolor': '#9CA3AF'},
-                'bar': {'color': '#38BDF8'},
-                'bgcolor': 'rgba(0,0,0,0)',
-                'bordercolor': '#0284C7',
-            }
-        ))
-        fig.add_trace(go.Indicator(
-            mode = "gauge+number",
-            value = word_variety,
-            number = {'suffix': "%"},
-            title = {'text': "Word Variety Ratio", 'font': {'size': 14, 'color': '#A855F7'}},
-            domain = {'x': [0.52, 1], 'y': [0, 1]},
-            gauge = {
-                'axis': {'range': [0, 100], 'tickcolor': '#9CA3AF'},
-                'bar': {'color': '#A855F7'},
-                'bgcolor': 'rgba(0,0,0,0)',
-                'bordercolor': '#7E22CE',
-            }
-        ))
-        fig.update_layout(
-            height=190,
-            margin=dict(l=20, r=20, t=30, b=10),
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
-            font={'color': '#F3F4F6'}
-        )
-        return fig
-
-    @staticmethod
     def create_radar_chart(scores_dict: Dict[str, float]) -> go.Figure:
         """
         Creates a Radar chart showing the breakdown of composite scores.
@@ -112,28 +72,14 @@ class ResumeCharts:
         # Close the shape
         categories = categories + [categories[0]]
         values = values + [values[0]]
-        benchmark_values = [88.0] * len(categories)
         
-        fig = go.Figure()
-        
-        # Benchmark line
-        fig.add_trace(go.Scatterpolar(
-            r=benchmark_values,
-            theta=categories,
-            name="Target Benchmark (88%)",
-            line=dict(color='rgba(245, 158, 11, 0.6)', dash='dash', width=1.5),
-            fill='none'
-        ))
-        
-        # Candidate Score
-        fig.add_trace(go.Scatterpolar(
+        fig = go.Figure(data=go.Scatterpolar(
             r=values,
             theta=categories,
-            name="Candidate Score",
             fill='toself',
-            line_color='#2C3E63',
-            fillcolor='rgba(44, 62, 99, 0.3)',
-            marker=dict(color='#38BDF8', size=7)
+            line=dict(color='#818CF8', width=2.5),
+            fillcolor='rgba(99, 102, 241, 0.3)',
+            marker=dict(color='#38BDF8', size=8, symbol='circle')
         ))
         
         fig.update_layout(
@@ -141,21 +87,21 @@ class ResumeCharts:
                 radialaxis=dict(
                     visible=True,
                     range=[0, 100],
-                    color='#9CA3AF',
-                    gridcolor='#374151'
+                    color='#94A3B8',
+                    gridcolor='rgba(255,255,255,0.1)'
                 ),
                 angularaxis=dict(
-                    color='#F3F4F6',
-                    gridcolor='#374151'
+                    color='#F8FAFC',
+                    gridcolor='rgba(255,255,255,0.1)'
                 ),
                 bgcolor='rgba(0,0,0,0)'
             ),
-            showlegend=True,
-            legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5, font=dict(color='#94A3B8', size=11)),
-            height=340,
-            margin=dict(l=50, r=50, t=30, b=40),
+            showlegend=False,
+            height=320,
+            margin=dict(l=50, r=50, t=30, b=30),
             paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)'
+            plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(family='Plus Jakarta Sans', color='#F8FAFC')
         )
         return fig
 
@@ -541,29 +487,33 @@ class ResumeCharts:
         targets.append(len(timeline_list) + 1)
         values.append(sum(values)) # Total duration equivalent value
         
+        # Color palette for nodes
+        node_colors = ["rgba(99, 102, 241, 0.9)", "rgba(56, 189, 248, 0.9)", "rgba(168, 85, 247, 0.9)", "rgba(52, 211, 153, 0.9)"]
+        colors_assigned = [node_colors[i % len(node_colors)] for i in range(len(nodes))]
+        
         fig = go.Figure(data=[go.Sankey(
             node = dict(
-              pad = 15,
-              thickness = 20,
-              line = dict(color = "black", width = 0.5),
+              pad = 18,
+              thickness = 22,
+              line = dict(color = "rgba(255,255,255,0.2)", width = 1),
               label = nodes,
-              color = "rgba(99, 102, 241, 0.8)"
+              color = colors_assigned
             ),
             link = dict(
               source = sources,
               target = targets,
               value = values,
-              color = "rgba(129, 140, 248, 0.4)"
+              color = "rgba(99, 102, 241, 0.3)"
           ))])
           
         fig.update_layout(
-            title_text="Experience Progression Flow to Target Career Role",
-            font_size=10,
-            height=260,
+            title_text="Career Progression Flow to Target Role",
+            font_size=11,
+            height=270,
             margin=dict(l=20, r=20, t=40, b=20),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            font={'color': '#F3F4F6'}
+            font=dict(family='Plus Jakarta Sans', color='#F8FAFC')
         )
         return fig
 
