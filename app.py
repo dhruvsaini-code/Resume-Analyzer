@@ -696,41 +696,47 @@ elif st.session_state.nav_selection == "Candidate Analyzer":
                     use_container_width=True
                 )
                 
-            # Profile summary card with Salary & Status Pills
-            st.subheader("Executive Profile & Market Analytics")
+            # Profile summary card
+            st.subheader("Executive Profile Summary")
             kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
             with kpi_col1:
                 st.markdown(f"""
-                <div class="glass-card">
-                    <div class="kpi-title">Candidate Name</div>
-                    <div class="kpi-value" style="font-size:1.4rem; height:44px; overflow:hidden;">{contact_info['name'] or 'Not Detected'}</div>
-                    <div class="kpi-sub"><span class="saas-badge badge-low">📍 {contact_info['location'] or 'Location N/A'}</span></div>
+                <div class="glass-card" style="padding: 1.25rem;">
+                    <div class="kpi-title">👤 Candidate Profile</div>
+                    <div class="kpi-value" style="font-size:1.4rem; height:38px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{contact_info['name'] or 'Not Detected'}</div>
+                    <div class="kpi-sub">📍 Loc: {contact_info['location'] or 'Not Disclosed'}</div>
                 </div>
                 """, unsafe_allow_html=True)
             with kpi_col2:
-                rating_badge = "badge-success" if res_metrics['overall_score'] >= 80 else ("badge-medium" if res_metrics['overall_score'] >= 60 else "badge-high")
+                rating_badge_cls = "badge-emerald" if res_metrics['overall_score'] >= 80 else ("badge-medium" if res_metrics['overall_score'] >= 60 else "badge-high")
                 st.markdown(f"""
-                <div class="glass-card">
-                    <div class="kpi-title">ATS Index Rating</div>
+                <div class="glass-card" style="padding: 1.25rem;">
+                    <div class="kpi-title" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>⚡ ATS Overall Score</span>
+                        <span class="saas-badge {rating_badge_cls}">{res_metrics['rating']}</span>
+                    </div>
                     <div class="kpi-value" style="color:{p_color};">{res_metrics['overall_score']} <span style="font-size:1.1rem; color:{text_secondary};">/ 100</span></div>
-                    <div class="kpi-sub"><span class="saas-badge {rating_badge}">Grade {res_metrics['rating']} Candidate</span></div>
+                    <div class="kpi-sub">19 Structural Parameters Checked</div>
                 </div>
                 """, unsafe_allow_html=True)
             with kpi_col3:
-                salary_str = match_results.get('salary_estimate', '$95K - $145K USD')
+                match_cls = "badge-emerald" if match_results['match_score'] >= 75 else ("badge-medium" if match_results['match_score'] >= 50 else "badge-low")
                 st.markdown(f"""
-                <div class="glass-card">
-                    <div class="kpi-title">Market Range Estimate</div>
-                    <div class="kpi-value" style="font-size:1.3rem; color:#34D399; height:44px; overflow:hidden;">{salary_str}</div>
-                    <div class="kpi-sub"><span class="saas-badge badge-success">💼 Role Alignment Fit</span></div>
+                <div class="glass-card" style="padding: 1.25rem;">
+                    <div class="kpi-title" style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>🎯 Requirements Match</span>
+                        <span class="saas-badge {match_cls}">{"JD Active" if has_jd else "No JD"}</span>
+                    </div>
+                    <div class="kpi-value" style="color:{p_color};">{match_results['match_score']}%</div>
+                    <div class="kpi-sub">{"Job Fitment Index" if has_jd else "Paste JD to calculate overlap"}</div>
                 </div>
                 """, unsafe_allow_html=True)
             with kpi_col4:
                 st.markdown(f"""
-                <div class="glass-card">
-                    <div class="kpi-title">Predicted Career Role</div>
-                    <div class="kpi-value" style="font-size:1.3rem; color:#818CF8; height:44px; overflow:hidden;">{pred_role}</div>
-                    <div class="kpi-sub"><span class="saas-badge badge-medium">Confidence: {top_confidence:.1f}%</span></div>
+                <div class="glass-card" style="padding: 1.25rem;">
+                    <div class="kpi-title">🚀 Predicted Role Path</div>
+                    <div class="kpi-value" style="font-size:1.3rem; color:#34D399; height:38px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{pred_role}</div>
+                    <div class="kpi-sub">ML Confidence: {top_confidence:.1f}%</div>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -745,26 +751,35 @@ elif st.session_state.nav_selection == "Candidate Analyzer":
             ])
             
             with tab_overview:
-                st.markdown("### Profile Summary Dashboard")
+                st.markdown("### Executive Candidate Profile Dashboard")
                 sum_col1, sum_col2 = st.columns(2)
                 with sum_col1:
-                    st.write(f"**Parsed Name:** {contact_info['name'] or 'Not found'}")
-                    st.write(f"**Email Address:** {contact_info['email'] or 'Not found'}")
-                    st.write(f"**Contact Number:** {contact_info['phone'] or 'Not found'}")
-                    st.write(f"**Location:** {contact_info['location'] or 'Not found'}")
+                    st.markdown(f"""
+                    <div class="glass-card">
+                        <h4 style="margin-top:0; color:{p_color};">Contact Details</h4>
+                        <p style="margin-bottom:6px;"><b>Full Name:</b> {contact_info['name'] or 'Not found'}</p>
+                        <p style="margin-bottom:6px;"><b>Email Address:</b> {contact_info['email'] or 'Not found'}</p>
+                        <p style="margin-bottom:6px;"><b>Phone Number:</b> {contact_info['phone'] or 'Not found'}</p>
+                        <p style="margin-bottom:0;"><b>Location:</b> {contact_info['location'] or 'Not found'}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 with sum_col2:
-                    st.write(f"**LinkedIn URL:** {contact_info['linkedin'] or 'Not found'}")
-                    st.write(f"**GitHub Portfolio:** {contact_info['github'] or 'Not found'}")
-                    st.write(f"**Personal website:** {contact_info['portfolio'] or 'Not found'}")
-                    st.write(f"**Total Experience (Years):** {res_metrics['total_years_exp']:.1f} yrs")
+                    st.markdown(f"""
+                    <div class="glass-card">
+                        <h4 style="margin-top:0; color:{p_color};">Professional Links & Credentials</h4>
+                        <p style="margin-bottom:6px;"><b>LinkedIn:</b> {contact_info['linkedin'] or 'Not found'}</p>
+                        <p style="margin-bottom:6px;"><b>GitHub:</b> {contact_info['github'] or 'Not found'}</p>
+                        <p style="margin-bottom:6px;"><b>Portfolio:</b> {contact_info['portfolio'] or 'Not found'}</p>
+                        <p style="margin-bottom:0;"><b>Total Experience:</b> {res_metrics['total_years_exp']:.1f} Years</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
-                st.markdown("---")
-                st.markdown("#### Dynamic Summary Paragraph")
+                st.markdown("#### AI Executive Summary")
                 st.info(feedback['professional_summary'])
                 
             with tab_scores:
-                st.markdown("### Platform Audit Scorecard (19 Core Metrics)")
-                st.caption("Each parameter is scored from 0-100 with trend indicators, confidence percentages, and custom recommendations.")
+                st.markdown("### Platform Audit Scorecard (19 Core Parameters)")
+                st.caption("Detailed score breakdown evaluation with priority badges, confidence percentages, and action fixes.")
                 
                 sc_keys = list(res_metrics['detailed_scores'].keys())
                 for i in range(0, len(sc_keys), 2):
@@ -774,18 +789,42 @@ elif st.session_state.nav_selection == "Candidate Analyzer":
                     
                     with col_s1:
                         sd1 = res_metrics['detailed_scores'][k1]
-                        st.markdown(f"**{k1}**: `{sd1['score']}%` | Trend: `{sd1['trend']}` | Priority: `{sd1['priority']}`")
-                        st.markdown(f"<div style='font-size:0.85rem; color:{text_secondary};'><i>{sd1['explanation']}</i></div>", unsafe_allow_html=True)
-                        st.markdown(f"<div style='font-size:0.85rem; color:{p_color};'><b>Fix:</b> {sd1['how_to_improve']}</div>", unsafe_allow_html=True)
+                        p_badge = "badge-high" if sd1['priority'] == 'High' else ("badge-medium" if sd1['priority'] == 'Medium' else "badge-emerald")
+                        st.markdown(f"""
+                        <div class="glass-card" style="padding: 1.2rem; margin-bottom: 1rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <strong style="font-size:1.05rem;">{k1}</strong>
+                                <span class="saas-badge {p_badge}">Priority: {sd1['priority']}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; margin-bottom:6px;">
+                                <span style="color:{text_secondary};">Score: <b>{sd1['score']}%</b></span>
+                                <span style="color:{p_color};">Trend: <b>{sd1['trend']}</b></span>
+                            </div>
+                            <div style="font-size:0.85rem; color:{text_secondary}; margin-bottom:8px; line-height:1.4;">{sd1['explanation']}</div>
+                            <div style="font-size:0.85rem; color:{p_color}; margin-bottom:8px;"><b>Fix:</b> {sd1['how_to_improve']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
                         st.progress(int(sd1['score']))
                         st.markdown("<br>", unsafe_allow_html=True)
                         
                     if k2:
                         with col_s2:
                             sd2 = res_metrics['detailed_scores'][k2]
-                            st.markdown(f"**{k2}**: `{sd2['score']}%` | Trend: `{sd2['trend']}` | Priority: `{sd2['priority']}`")
-                            st.markdown(f"<div style='font-size:0.85rem; color:{text_secondary};'><i>{sd2['explanation']}</i></div>", unsafe_allow_html=True)
-                            st.markdown(f"<div style='font-size:0.85rem; color:{p_color};'><b>Fix:</b> {sd2['how_to_improve']}</div>", unsafe_allow_html=True)
+                            p_badge2 = "badge-high" if sd2['priority'] == 'High' else ("badge-medium" if sd2['priority'] == 'Medium' else "badge-emerald")
+                            st.markdown(f"""
+                            <div class="glass-card" style="padding: 1.2rem; margin-bottom: 1rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                    <strong style="font-size:1.05rem;">{k2}</strong>
+                                    <span class="saas-badge {p_badge2}">Priority: {sd2['priority']}</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; margin-bottom:6px;">
+                                    <span style="color:{text_secondary};">Score: <b>{sd2['score']}%</b></span>
+                                    <span style="color:{p_color};">Trend: <b>{sd2['trend']}</b></span>
+                                </div>
+                                <div style="font-size:0.85rem; color:{text_secondary}; margin-bottom:8px; line-height:1.4;">{sd2['explanation']}</div>
+                                <div style="font-size:0.85rem; color:{p_color}; margin-bottom:8px;"><b>Fix:</b> {sd2['how_to_improve']}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
                             st.progress(int(sd2['score']))
                             st.markdown("<br>", unsafe_allow_html=True)
                             
